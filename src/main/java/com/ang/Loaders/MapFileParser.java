@@ -1,7 +1,6 @@
 package com.ang.Loaders;
 
-import com.ang.Hittables.HittableList;
-import com.ang.Hittables.CubeWorld;
+import com.ang.Hittables.*;
 import com.ang.Exceptions.MapParseException;
 import com.ang.Graphics.Colour;
 import com.ang.Maths.Vec2;
@@ -21,18 +20,38 @@ public class MapFileParser {
 			throw new MapParseException(path + " Is not a valid map file");
 
 		}
+		return populateMapData(parsingData);
+
+	}
+
+	private MapData populateMapData(ParsingData pData) throws MapParseException {
 		MapData mapData = new MapData();
-		mapData.setWorldType(mapData.worldType());
-		mapData.setPosition(parseVec2(parsingData.positionLineNumber()));
-		mapData.setFacing(parseVec2(parsingData.facingLineNumber()));
-		if (parsingData.worldType() == WorldType.CUBEWORLD) {
-			Colour[] colours = parseColours(parsingData.coloursLineNumber());
-			HittableList world = parseCubeWorld(parsingData.worldLineNumber(), colours);
-			mapData.setWorld(world);
-		} else {
-			mapData.setWorld(parseSectorWorld(parsingData.worldLineNumber()));
-		}
+		// get line numbers from first pass
+		int worldLine = pData.worldLineNumber();
+		int positionLine = pData.positionLineNumber();
+		int facingLine = pData.facingLineNumber();
+		int coloursLine = pData.coloursLineNumber();
+		// parse all lines
+		WorldType worldType = pData.worldType();
+		HittableList world = worldType.isCubeWorld()
+		? parseCubeWorld(worldLine, parseColours(coloursLine))
+		: parseSectorWorld(worldLine, parseColours(coloursLine), pData.delimiterLineNumbers());
+		Vec2 position = vecIsNotArray(parseVec2(positionLine));
+		Vec2 facing = vecIsNotArray(parseVec2(facingLine));
+		// set map data
+		mapData.setWorldType(worldType);
+		mapData.setWorld(world);
+		mapData.setPosition(position);
+		mapData.setFacing(facing);
 		return mapData;
+
+	}
+
+	private Vec2 vecIsNotArray(Vec2[] vecs) throws MapParseException {
+		if (vecs.length != 1) {
+			throw new MapParseException("Invalid array length. Vec2 single expected");
+		}
+		return vecs[0];
 
 	}
 
@@ -47,33 +66,71 @@ public class MapFileParser {
 		boolean coloursFound = false;
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
-			// TODO: Add support for sector world "-SECTORWORLD"
+			if (charsMatch(line, "-SECTORWORLD")) {
+				worldFound = true;
+				pData.setWorldType(WorldType.SECTORWORLD);
+				pData.setWorldLineNumber(i);
+			}
 			if (charsMatch(line, "-CUBEWORLD")) {
 				worldFound = true;
-				pData.setWorld(WorldType.CUBEWORLD);
+				pData.setWorldType(WorldType.CUBEWORLD);
 				pData.setWorldLineNumber(i);
-			} else if (charsMatch(line, "-POSITION")) {
+			}
+			if (charsMatch(line, "-POSITION")) {
 				positionFound = true;
 				pData.setPositionLineNumber(i);
-			} else if (charsMatch(line, "-FACING")) {
+			}
+			if (charsMatch(line, "-FACING")) {
 				facingFound = true;
 				pData.setFacingLineNumber(i);
-			} else if (charsMatch(line, "-COLOURS")) {
+			}
+			if (charsMatch(line, "-COLOURS")) {
 				coloursFound = true;
 				pData.setColoursLineNumber(i);
+			}
+			if (line.charAt(line.length() - 1) == '/') {
+				pData.addDelimiterLineNumber(i);
 			}
 		}
 		return worldFound && positionFound && facingFound && coloursFound;
 
 	}
 	
-	private HittableList parseSectorWorld(int headLineNum) throws MapParseException {
-		// TODO: Implement
-		return new HittableList(0);
+	private HittableList parseSectorWorld(int headLineNum, Colour[] colours, 
+			int[] delimiterLineNumbers) throws MapParseException {
+		final int MAX_SECTOR_CORNERS = 20;
+		MapFileDataType type = parseDataType(headLineNum);
+		if (type != MapFileDataType.VEC2) {
+			throw new MapParseException(path, headLineNum);
+
+		}
+		int delimiterPtr = 0;
+		int sectorCount = parseSectorCount(headLineNum);
+		HittableList world = new HittableList(sectorCount);
+		Vec2[] vectors = parseVec2(headLineNum);
+		Vec2[] corners = new Vec2[MAX_SECTOR_CORNERS];
+		int cornersHead = 0;
+		for (int i = 0; i < vectors.length; i++) {
+			int currentLine = headLineNum + i + 2;
+			corners[cornersHead++] = vectors[i];
+			if (currentLine == delimiterLineNumbers[delimiterPtr]) {
+				delimiterPtr++;
+				Vec2[] cornersToAdd = new Vec2[cornersHead];
+				for (int j = 0; j < cornersToAdd.length; j++) {
+					cornersToAdd[j] = corners[j];
+				}
+				Sector toAdd = new Sector(cornersToAdd);
+				world.addHittable(toAdd);
+				corners = new Vec2[MAX_SECTOR_CORNERS];
+				cornersHead = 0;
+			}
+		}
+		return world;
 
 	}
 
-	private HittableList parseCubeWorld(int headLineNum, Colour[] colours) throws MapParseException {
+	private HittableList parseCubeWorld(int headLineNum, Colour[] colours) 
+			throws MapParseException {
 		MapFileDataType type = parseDataType(headLineNum);
 		if (type != MapFileDataType.INTS) {
 			throw new MapParseException(path, headLineNum);
@@ -114,51 +171,51 @@ public class MapFileParser {
 
 	}
 
-	private Vec2 parseVec2(int headLineNum) throws MapParseException {
+	private Vec2[] parseVec2(int headLineNum) throws MapParseException {
 		MapFileDataType type = parseDataType(headLineNum);
 		if (type != MapFileDataType.VEC2) {
 			throw new MapParseException(path, headLineNum);
 
 		}
 		String[] arrayLines = extractDataUnderHeader(headLineNum);
-		if (arrayLines.length > 1) {
-			throw new MapParseException(path, headLineNum);
+		Vec2[] parsedLines = new Vec2[arrayLines.length];
+		for (int i = 0; i < arrayLines.length; i++) {
+			String line = arrayLines[i];
+			boolean didStart = false;
+			boolean didEnd = false;
+			Vec2 parsedLine = new Vec2();
+			String dataString = "";
+			int axisToAdd = 0;
+			for (int j = 0; j < line.length(); j++) {
+				char c = line.charAt(j);
+				if (!didStart && (c == '<')) {
+					didStart = true;
+					continue;
 
-		}
-		String line = arrayLines[0];
-		boolean didStart = false;
-		boolean didEnd = false;
-		Vec2 parsedLine = new Vec2();
-		String dataString = "";
-		int axisToAdd = 0;
-		for (int i = 0; i < line.length(); i++) {
-			char c = line.charAt(i);
-			if (!didStart && (c == '<')) {
-				didStart = true;
-				continue;
-
-			}
-			if (didStart && (c == '>')) {
-				didEnd = true;
-				parsedLine.setAxis(axisToAdd++, Double.valueOf(dataString));
-				dataString = "";
-				continue;
-
-			} 
-			if (didStart && !didEnd) {
-				if (c != '|') {
-					dataString += c;	
-				} else {
+				}
+				if (didStart && (c == '>')) {
+					didEnd = true;
 					parsedLine.setAxis(axisToAdd++, Double.valueOf(dataString));
 					dataString = "";
+					continue;
+
+				} 
+				if (didStart && !didEnd) {
+					if (c != '|') {
+						dataString += c;	
+					} else {
+						parsedLine.setAxis(axisToAdd++, Double.valueOf(dataString));
+						dataString = "";
+					}
 				}
 			}
-		}
-		if (!didStart || !didEnd) {
-			throw new MapParseException(path, headLineNum);
+			if (!didStart || !didEnd) {
+				throw new MapParseException(path, headLineNum);
 
+			}
+			parsedLines[i] = parsedLine;
 		}
-		return parsedLine;
+		return parsedLines;
 
 	}
 
@@ -210,26 +267,35 @@ public class MapFileParser {
 		return colours;
 
 	}
+	
+	private int parseIntBetweenChars(int headLineNum, char starter, char ender) 
+			throws MapParseException {
+		return parseIntBetweenChars(headLineNum, starter, ender, ender);
 
-	private int parseArrayLength(int headLineNum) throws MapParseException {
+	}
+
+	private int parseIntBetweenChars(int headLineNum, char starter, char ender, char altEnder) 
+			throws MapParseException {
 		boolean didStart = false;
 		boolean didEnd = false;
 		String dataString = "";
 		String line = lines[headLineNum];
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
-			if (!didStart && (c == '~')) {
+			if (!didStart && (c == starter)) {
 				didStart = true;
 				continue;
 
 			}
-			if (didStart && (c == '#')) {
+			if (didStart && ((c == ender) || (c == altEnder))) { 
 				didEnd = true;
-				continue;
+				break;
 
 			}
-			if (didStart && !didEnd) {
+			if (didStart) {
 				dataString += c;	
+				continue;
+
 			}
 		}
 		if (!didStart || !didEnd) {
@@ -238,6 +304,72 @@ public class MapFileParser {
 		}
 		return Integer.valueOf(dataString);
 
+	}
+
+	private int parseSectorCount(int headLineNum) throws MapParseException {
+		return parseIntBetweenChars(headLineNum, ':', '#');
+
+		//boolean didStart = false;
+		//boolean didEnd = false;
+		//String dataString = "";
+		//String line = lines[headLineNum];
+		//for (int i = 0; i < line.length(); i++) {
+		//	char c = line.charAt(i);
+		//	if (!didStart && (c == ':')) {
+		//		didStart = true;
+		//		continue;
+		//
+		//	}
+		//	if (didStart && (c == '#')) { 
+		//		didEnd = true;
+		//		break;
+		//
+		//	}
+		//	if (didStart && !didEnd) {
+		//		dataString += c;	
+		//		continue;
+		//
+		//	}
+		//}
+		//if (!didStart || !didEnd) {
+		//	throw new MapParseException(path, headLineNum);
+		//
+		//}
+		//return Integer.valueOf(dataString);
+		//
+	}
+
+	private int parseArrayLength(int headLineNum) throws MapParseException {
+		return parseIntBetweenChars(headLineNum, '~', '#', ':');
+
+		//boolean didStart = false;
+		//boolean didEnd = false;
+		//String dataString = "";
+		//String line = lines[headLineNum];
+		//for (int i = 0; i < line.length(); i++) {
+		//	char c = line.charAt(i);
+		//	if (!didStart && (c == '~')) {
+		//		didStart = true;
+		//		continue;
+		//
+		//	}
+		//	if (didStart && ((c == '#') || (c == ':'))) {
+		//		didEnd = true;
+		//		break;
+		//
+		//	}
+		//	if (didStart && !didEnd) {
+		//		dataString += c;	
+		//		continue;
+		//
+		//	}
+		//}
+		//if (!didStart || !didEnd) {
+		//	throw new MapParseException(path, headLineNum);
+		//
+		//}
+		//return Integer.valueOf(dataString);
+		//
 	}
 
 	private MapFileDataType parseDataType(int headLineNum) throws MapParseException {

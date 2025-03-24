@@ -7,11 +7,24 @@ public class Main {
     }
 
 	private static String parseArgs(String[] args) {
-		if (args.length == 0) {
-			return "testMap.txt";
+		if ((args.length == 2) && (args[0].equals("-test"))) {
+			switch (args[1]) {
+			case "-cubeworld":
+			case "-cw":
+			case "-c":
+				return "testCubeMap.pmap";
 
+			case "-sectorworld":
+			case "-sw":
+			case "-s":
+				return "testSectorMap.pmap";
+
+			default:
+				return "testCubeMap.pmap";
+
+			}
 		}
-		return args[1];
-	
+		return null;
+
 	}
 }

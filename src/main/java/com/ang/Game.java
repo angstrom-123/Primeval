@@ -3,7 +3,6 @@ package com.ang;
 import com.ang.Exceptions.*;
 import com.ang.Hittables.*;
 import com.ang.Loaders.*;
-import com.ang.Maths.Vec2;
 import com.ang.Threads.*;
 import com.ang.Inputs.*;
 
@@ -18,6 +17,10 @@ public class Game implements ThreadInterface, InputInterface {
 	private HittableList	world;
 
 	public Game(String mapFileName) {
+		if (mapFileName == null) {
+			// TODO: regular game entry point goes here
+			System.out.println("Regular game entry point goes here");
+		}
 		boolean didLoad = loadMapFile(mapFileName);
 		if (didLoad) {
 			cam.init(il);

@@ -11,6 +11,22 @@ public class Interval {
 		this.max = max;
 	}
 
+	public boolean contains(double val) {
+		if (min < max) {
+			if ((val >= min) && (val <= max)) {
+				return true;
+
+			}
+		} else if (max < min) {
+			if ((val <= min) && (val >= max)) {
+				return true;
+
+			}
+		}
+		return false;
+
+	}
+
 	public double min() {
 		return min;
 
@@ -36,6 +52,12 @@ public class Interval {
 
 	public static Interval universe() {
 		return new Interval(-Global.INFINITY, Global.INFINITY);
+
+	}
+
+	@Override
+	public String toString() {
+		return ("min:" + min + "\n" + "max:" + max);
 
 	}
 }

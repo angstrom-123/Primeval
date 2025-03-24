@@ -78,4 +78,12 @@ public class Cube extends Hittable {
 		return true;
 
 	}
+
+	@Override
+	public String toString() {
+		return (x.toString() + "\n"
+				+ y.toString() + "\n"
+				+ z.toString());
+
+	}
 }

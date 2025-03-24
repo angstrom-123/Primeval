@@ -9,6 +9,11 @@ public class Vec3 {
 
 	public Vec3() {}
 
+	public Vec3 copy() {
+		return new Vec3(x, y, z);
+
+	}
+
 	public Vec3(double x, double y, double z) {
 		this.x = x;
 		this.y = y;

@@ -14,7 +14,7 @@ public class HittableList extends Hittable {
 	}
 	
 	public void addHittable(Hittable h) {
-		if (head < maxHittables - 1) {
+		if (head < maxHittables) {
 			hittables[head++] = h;
 		} else {
 			System.out.println("Failed to add hittable to list");
@@ -36,14 +36,26 @@ public class HittableList extends Hittable {
 			Interval bounds = new Interval(tInterval.min(), closestHit);
 			if (h.hit(r, bounds, tempRec)) {
 				if (tempRec.t() >= 0.0) {
-					didHit = true;
-					closestHit = tempRec.t();
-					rec.setT(tempRec.t());
-					rec.setColour(tempRec.colour());
+					if (tempRec.t() < tInterval.max()) {
+						didHit = true;
+						closestHit = tempRec.t();
+						rec.setT(tempRec.t());
+						rec.setColour(tempRec.colour());
+					}
 				}
 			}
 		}
 		return didHit;
+
+	}
+
+	@Override 
+	public String toString() {
+		String out = "";
+		for (int i = 0; i < head; i++) {
+			out += "(\n" + hittables[i].toString() + "\n)";
+		}
+		return out;
 
 	}
 }
