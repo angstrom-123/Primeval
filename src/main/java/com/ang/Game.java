@@ -20,6 +20,8 @@ public class Game implements ThreadInterface, InputInterface {
 		if (mapFileName == null) {
 			// TODO: regular game entry point goes here
 			System.out.println("Regular game entry point goes here");
+			return;
+
 		}
 		boolean didLoad = loadMapFile(mapFileName);
 		if (didLoad) {

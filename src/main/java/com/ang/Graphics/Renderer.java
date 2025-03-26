@@ -51,9 +51,9 @@ public class Renderer {
 		int colColour = processToInt(columnColour);
 		int bgColour = processToInt(backgroundColour);
 		for (int y = 0; y < height; y++) {
-			if (y < bottom) {
+			if (y <= bottom) {
 				img.setRGB(x, y, bgColour);
-			} else if (y < top) {
+			} else if (y <= top) {
 				img.setRGB(x, y, colColour);
 			} else {
 				img.setRGB(x, y, bgColour);

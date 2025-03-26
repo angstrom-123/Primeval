@@ -95,14 +95,14 @@ public class Camera {
 
 	private double getDepth(Ray r, HitRecord rec) {
 		double distance = (r.at(rec.t()).sub(r.origin())).length();
-		double value = 1.0 - (distance / 15.0);
+		double value = 1.0 - (distance / 30.0);
 		return value;
 
 	}
 
 	private int[] getColumnBounds(Ray r, HitRecord rec) {
 		double distance = (r.at(rec.t()).sub(r.origin())).length();
-		int h = (int) (imageHeight / distance);
+		int h = (int) Math.round((imageHeight / distance));
 		int bottom = Math.max((imageHeight / 2) - (h / 2), 0);
 		int top = Math.min((imageHeight / 2) + (h / 2), imageHeight - 1);
 		return new int[]{bottom, top};

@@ -41,6 +41,12 @@ public class HittableList extends Hittable {
 						closestHit = tempRec.t();
 						rec.setT(tempRec.t());
 						rec.setColour(tempRec.colour());
+						if (tempRec.sectorFloor() != 0.0) {
+							rec.setFloor(tempRec.sectorFloor());
+						}
+						if (tempRec.sectorCeiling() != 0.0) {
+							rec.setCeiling(tempRec.sectorCeiling());
+						}
 					}
 				}
 			}

@@ -33,9 +33,13 @@ public class MapFileParser {
 		int coloursLine = pData.coloursLineNumber();
 		// parse all lines
 		WorldType worldType = pData.worldType();
-		HittableList world = worldType.isCubeWorld()
-		? parseCubeWorld(worldLine, parseColours(coloursLine))
-		: parseSectorWorld(worldLine, parseColours(coloursLine), pData.delimiterLineNumbers());
+		HittableList world;
+		if (worldType.isCubeWorld()) {
+			world = parseCubeWorld(worldLine, parseColours(coloursLine));	
+		} else {
+			world = parseSectorWorld(worldLine, parseColours(coloursLine), 
+					pData.delimiterLineNumbers(), pData.portalLineNumbers());	
+		}
 		Vec2 position = vecIsNotArray(parseVec2(positionLine));
 		Vec2 facing = vecIsNotArray(parseVec2(facingLine));
 		// set map data
@@ -66,30 +70,35 @@ public class MapFileParser {
 		boolean coloursFound = false;
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
-			if (charsMatch(line, "-SECTORWORLD")) {
-				worldFound = true;
-				pData.setWorldType(WorldType.SECTORWORLD);
-				pData.setWorldLineNumber(i);
-			}
-			if (charsMatch(line, "-CUBEWORLD")) {
-				worldFound = true;
-				pData.setWorldType(WorldType.CUBEWORLD);
-				pData.setWorldLineNumber(i);
-			}
-			if (charsMatch(line, "-POSITION")) {
-				positionFound = true;
-				pData.setPositionLineNumber(i);
-			}
-			if (charsMatch(line, "-FACING")) {
-				facingFound = true;
-				pData.setFacingLineNumber(i);
-			}
-			if (charsMatch(line, "-COLOURS")) {
-				coloursFound = true;
-				pData.setColoursLineNumber(i);
-			}
 			if (line.charAt(line.length() - 1) == '/') {
 				pData.addDelimiterLineNumber(i);
+			}
+			if (line.charAt(0) == 'P') {
+				pData.addPortalLineNumber(i);
+			}
+			if (line.charAt(0) == '-') {
+				if (charsMatch(line, "-SECTORWORLD")) {
+					worldFound = true;
+					pData.setWorldType(WorldType.SECTORWORLD);
+					pData.setWorldLineNumber(i);
+				}
+				if (charsMatch(line, "-CUBEWORLD")) {
+					worldFound = true;
+					pData.setWorldType(WorldType.CUBEWORLD);
+					pData.setWorldLineNumber(i);
+				}
+				if (charsMatch(line, "-POSITION")) {
+					positionFound = true;
+					pData.setPositionLineNumber(i);
+				}
+				if (charsMatch(line, "-FACING")) {
+					facingFound = true;
+					pData.setFacingLineNumber(i);
+				}
+				if (charsMatch(line, "-COLOURS")) {
+					coloursFound = true;
+					pData.setColoursLineNumber(i);
+				}
 			}
 		}
 		return worldFound && positionFound && facingFound && coloursFound;
@@ -97,7 +106,7 @@ public class MapFileParser {
 	}
 	
 	private HittableList parseSectorWorld(int headLineNum, Colour[] colours, 
-			int[] delimiterLineNumbers) throws MapParseException {
+			int[] delimiterLineNumbers, int[] portalLineNumbers) throws MapParseException {
 		final int MAX_SECTOR_CORNERS = 20;
 		MapFileDataType type = parseDataType(headLineNum);
 		if (type != MapFileDataType.VEC2) {
@@ -105,24 +114,34 @@ public class MapFileParser {
 
 		}
 		int delimiterPtr = 0;
+		int portalPtr = 0;
 		int sectorCount = parseSectorCount(headLineNum);
 		HittableList world = new HittableList(sectorCount);
 		Vec2[] vectors = parseVec2(headLineNum);
 		Vec2[] corners = new Vec2[MAX_SECTOR_CORNERS];
 		int cornersHead = 0;
+		int[] portalCorners = new int[MAX_SECTOR_CORNERS];
+		int portalCornersHead = 0;
 		for (int i = 0; i < vectors.length; i++) {
 			int currentLine = headLineNum + i + 2;
 			corners[cornersHead++] = vectors[i];
+			if ((portalPtr < portalLineNumbers.length) 
+					&& (currentLine == portalLineNumbers[portalPtr])) {
+				portalPtr++;
+				portalCorners[portalCornersHead++] = i;
+			}
 			if (currentLine == delimiterLineNumbers[delimiterPtr]) {
 				delimiterPtr++;
 				Vec2[] cornersToAdd = new Vec2[cornersHead];
 				for (int j = 0; j < cornersToAdd.length; j++) {
 					cornersToAdd[j] = corners[j];
 				}
-				Sector toAdd = new Sector(cornersToAdd);
+				Sector toAdd = new Sector(cornersToAdd, portalCorners);
 				world.addHittable(toAdd);
 				corners = new Vec2[MAX_SECTOR_CORNERS];
 				cornersHead = 0;
+				portalCorners = new int[MAX_SECTOR_CORNERS];
+				portalCornersHead = 0;
 			}
 		}
 		return world;

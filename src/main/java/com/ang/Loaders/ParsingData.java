@@ -8,6 +8,8 @@ public class ParsingData {
 	private WorldType worldType;
 	private int[] delimiterLineNumbers = new int[1000];
 	private int delimitersHead = 0;
+	private int[] portalLineNumbers = new int[1000];
+	private int portalsHead = 0;
 
 	public ParsingData() {}
 
@@ -33,6 +35,10 @@ public class ParsingData {
 
 	public void addDelimiterLineNumber(int num) {
 		delimiterLineNumbers[delimitersHead++] = num;
+	}
+
+	public void addPortalLineNumber(int num) {
+		portalLineNumbers[portalsHead++] = num;
 	}
 
 	public WorldType worldType() {
@@ -64,6 +70,15 @@ public class ParsingData {
 		int[] out = new int[delimitersHead];
 		for (int i = 0; i < delimitersHead; i++) {
 			out[i] = delimiterLineNumbers[i];
+		}
+		return out;
+
+	}
+
+	public int[] portalLineNumbers() {
+		int[] out = new int[portalsHead];
+		for (int i = 0; i < portalsHead; i++) {
+			out[i] = portalLineNumbers[i];
 		}
 		return out;
 
