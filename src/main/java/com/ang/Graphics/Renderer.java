@@ -50,10 +50,11 @@ public class Renderer {
 			int x, int bottom, int top) {
 		int colColour = processToInt(columnColour);
 		int bgColour = processToInt(backgroundColour);
+		// fill in pixels from the top, so higher pixels have a smaller y value
 		for (int y = 0; y < height; y++) {
-			if (y <= bottom) {
+			if (y <= top) {
 				img.setRGB(x, y, bgColour);
-			} else if (y <= top) {
+			} else if (y <= bottom) {
 				img.setRGB(x, y, colColour);
 			} else {
 				img.setRGB(x, y, bgColour);

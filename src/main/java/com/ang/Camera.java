@@ -102,10 +102,11 @@ public class Camera {
 
 	private int[] getColumnBounds(Ray r, HitRecord rec) {
 		double distance = (r.at(rec.t()).sub(r.origin())).length();
-		int h = (int) Math.round((imageHeight / distance));
-		int bottom = Math.max((imageHeight / 2) - (h / 2), 0);
-		int top = Math.min((imageHeight / 2) + (h / 2), imageHeight - 1);
-		return new int[]{bottom, top};
+		int botScreenPos = (int) Math.round((imageHeight / distance) * rec.sectorFloor());
+		int topScreenPos = (int) Math.round((imageHeight / distance) * rec.sectorCeiling());
+		int bottom = Math.max((imageHeight / 2) + botScreenPos, 0);
+		int top = Math.min((imageHeight / 2) + topScreenPos, imageHeight - 1);
+		return new int[]{imageHeight - bottom, imageHeight - top};
 
 	}
 
