@@ -38,5 +38,17 @@ of any shape and size. At this stage, I also created my plain-text level format
 
 <img src="https://github.com/user-attachments/assets/bedb2c4f-6bef-4538-a473-6bfb66c49620" width="50%">
 
-<img src="https://github.com/user-attachments/assets/13b76fc5-4da0-45f6-97d7-d76d1a4aa6d3" width="50%">
+The next step to implementing Doom-like sectors was to add "2 sided line-defs".
+Internally, I decided to call these portals. These are walls of sectors that can
+be seen through as if they were not there. This will allow for sectors to be joined 
+by an intermediate wall.
+
+<img src="https://github.com/user-attachments/assets/2b16d338-9aa4-497f-9780-a099cf864e15" width="50%">
+
+I then added support for floor height and ceiling height of sectors. This can be
+seen working with a few walls here, where the floor and ceiling are both higher
+than in previous examples. This is a crucial step in allowing for creative level
+layouts as it will allow for adding verticality to maps.
+
+<img src="https://github.com/user-attachments/assets/682c2bfd-569d-479d-affd-4409225cc1d8" width="50%">
 
