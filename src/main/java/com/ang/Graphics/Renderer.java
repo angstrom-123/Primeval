@@ -46,43 +46,20 @@ public class Renderer {
 		img.setRGB(x, y, col);
 	}
 
-	public void writeColumn(Colour columnColour, Colour backgroundColour, 
-			int x, int bottom, int top) {
+	public void writeColumn(Colour columnColour, int x, int bottom, int top) {
 		int colColour = processToInt(columnColour);
-		int bgColour = processToInt(backgroundColour);
 		// fill in pixels from the top, so higher pixels have a smaller y value
 		for (int y = 0; y < height; y++) {
-			if (y <= top) {
-				img.setRGB(x, y, bgColour);
-			} else if (y <= bottom) {
+			if ((y >= top) && (y <= bottom)) {
 				img.setRGB(x, y, colColour);
-			} else {
-				img.setRGB(x, y, bgColour);
 			}
 		}
 	}
 
-	public void writeColumn(Colour columnColour, Colour backgroundColour, 
-			int x, int columnHeight) {
-		int colColour = processToInt(columnColour);
-		int bgColour = processToInt(backgroundColour);
-		columnHeight = Math.min(columnHeight, height);
-		int startPos = (int) Math.floor((height - columnHeight) / 2);
-		for (int y = 0; y < height; y++) {
-			if (y < startPos) {
-				img.setRGB(x, y, bgColour);	
-			} else if (y < startPos + columnHeight) {
-				img.setRGB(x, y, colColour);
-			} else {
-				img.setRGB(x, y, bgColour); 
-			}
-		}
-	}
-
-	public void writeTile(Colour tileColour, int size, int x, int y) {
+	public void writeTile(Colour tileColour, int width, int height, int x, int y) {
 		int tColour = processToInt(tileColour);
-		for (int j = y; j < y + size; j++) {
-			for (int i = x; i < x + size; i++) {
+		for (int j = y; j < y + height; j++) {
+			for (int i = x; i < x + width; i++) {
 				img.setRGB(i, j, tColour);
 			}
 		}

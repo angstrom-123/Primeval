@@ -4,10 +4,10 @@ import com.ang.Maths.*;
 import com.ang.Graphics.Colour;
 
 public class Sector extends HittableList {
-	private double floorHeight = -0.5;
-	private double ceilingHeight = 1.0;
+	private double floorHeight;
+	private double ceilingHeight;
 	// TODO: implement light level
-	//private double lightLevel = 1.0; 
+	private double lightLevel = 1.0; 
 
 	public Sector(Vec2[] corners, int[] portalCorners) {
 		super(corners.length + 1);
@@ -30,6 +30,15 @@ public class Sector extends HittableList {
 		}
 	}
 
+	public void setHeight(double floorHeight, double ceilingHeight) {
+		this.floorHeight = floorHeight;
+		this.ceilingHeight = ceilingHeight;
+	}
+
+	public void setLightLevel(double lightLevel) {
+		this.lightLevel = lightLevel;
+	}
+
 	public double floorHeight() {
 		return floorHeight;
 
@@ -37,6 +46,11 @@ public class Sector extends HittableList {
 
 	public double ceilingHeight() {
 		return ceilingHeight;
+
+	}
+
+	public double lightLevel() {
+		return lightLevel;
 
 	}
 
@@ -66,6 +80,14 @@ public class Sector extends HittableList {
 
 		}
 		return false;
+
+	}
+
+	@Override
+	public String toString() {
+		return ("Floor: " + floorHeight + "\n"
+				+ "Ceiling: " + ceilingHeight + "\n"
+				+ super.toString());
 
 	}
 }

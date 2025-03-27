@@ -1,509 +1,195 @@
 package com.ang.Loaders;
 
-import com.ang.Hittables.*;
-import com.ang.Exceptions.MapParseException;
+import com.ang.Global;
+import com.ang.Exceptions.*;
 import com.ang.Graphics.Colour;
-import com.ang.Maths.Vec2;
+import com.ang.Maths.*;
+import com.ang.Hittables.*;
 
 public class MapFileParser {
 	private String path;
-	private String[] lines;
 
 	public MapFileParser(String path) {
 		this.path = path;
 	}
 
 	public MapData parseMapData(String[] lines) throws MapParseException {
-		this.lines = lines;
-		ParsingData parsingData = new ParsingData();
-		if (!validFile(parsingData)) {
-			throw new MapParseException(path + " Is not a valid map file");
-
-		}
-		return populateMapData(parsingData);
-
-	}
-
-	private MapData populateMapData(ParsingData pData) throws MapParseException {
 		MapData mapData = new MapData();
-		// get line numbers from first pass
-		int worldLine = pData.worldLineNumber();
-		int positionLine = pData.positionLineNumber();
-		int facingLine = pData.facingLineNumber();
-		int coloursLine = pData.coloursLineNumber();
-		// parse all lines
-		WorldType worldType = pData.worldType();
-		HittableList world;
-		if (worldType.isCubeWorld()) {
-			world = parseCubeWorld(worldLine, parseColours(coloursLine));	
+		mapData.setPosition(parseSingleVector(lines, "!POSITION"));
+		mapData.setFacing(parseSingleVector(lines, "!FACING"));
+		if (lines[0].equals("!PMAPv1.0.0")) {
+			mapData.setWorldType(WorldType.SECTORWORLD);
+			mapData.setWorld(parseSectorWorld(lines));
 		} else {
-			world = parseSectorWorld(worldLine, parseColours(coloursLine), 
-					pData.delimiterLineNumbers(), pData.portalLineNumbers());	
+			throw new MapParseException(path, 0);
+
 		}
-		Vec2 position = vecIsNotArray(parseVec2(positionLine));
-		Vec2 facing = vecIsNotArray(parseVec2(facingLine));
-		// set map data
-		mapData.setWorldType(worldType);
-		mapData.setWorld(world);
-		mapData.setPosition(position);
-		mapData.setFacing(facing);
 		return mapData;
 
 	}
 
-	private Vec2 vecIsNotArray(Vec2[] vecs) throws MapParseException {
-		if (vecs.length != 1) {
-			throw new MapParseException("Invalid array length. Vec2 single expected");
-		}
-		return vecs[0];
-
-	}
-
-	private boolean validFile(ParsingData pData) {
-		if (!charsMatch(lines[0], "TOP") || !charsMatch(lines[lines.length - 1], "BOTTOM")) {
-			return false;
-
-		}
-		boolean worldFound = false;
-		boolean positionFound = false;
-		boolean facingFound = false;
-		boolean coloursFound = false;
+	private Vec2 parseSingleVector(String[] lines, String match) throws MapParseException {
+		Vec2[] extracted = new Vec2[0];
+		int lineNum = 0;
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
-			if (line.charAt(line.length() - 1) == '/') {
-				pData.addDelimiterLineNumber(i);
-			}
-			if (line.charAt(0) == 'P') {
-				pData.addPortalLineNumber(i);
-			}
-			if (line.charAt(0) == '-') {
-				if (charsMatch(line, "-SECTORWORLD")) {
-					worldFound = true;
-					pData.setWorldType(WorldType.SECTORWORLD);
-					pData.setWorldLineNumber(i);
-				}
-				if (charsMatch(line, "-CUBEWORLD")) {
-					worldFound = true;
-					pData.setWorldType(WorldType.CUBEWORLD);
-					pData.setWorldLineNumber(i);
-				}
-				if (charsMatch(line, "-POSITION")) {
-					positionFound = true;
-					pData.setPositionLineNumber(i);
-				}
-				if (charsMatch(line, "-FACING")) {
-					facingFound = true;
-					pData.setFacingLineNumber(i);
-				}
-				if (charsMatch(line, "-COLOURS")) {
-					coloursFound = true;
-					pData.setColoursLineNumber(i);
-				}
+			if (line.equals(match)) {
+				extracted = extractVec2s(i + 1, lines);	
+				lineNum = i + 1;
+				break;
+
 			}
 		}
-		return worldFound && positionFound && facingFound && coloursFound;
+		for (Vec2 v : extracted) {
+			System.out.println(v.toString());
+		}
+		if (extracted.length != 1) {
+			throw new MapParseException(path, lineNum);
+
+		}
+		return extracted[0];
 
 	}
-	
-	private HittableList parseSectorWorld(int headLineNum, Colour[] colours, 
-			int[] delimiterLineNumbers, int[] portalLineNumbers) throws MapParseException {
-		final int MAX_SECTOR_CORNERS = 20;
-		MapFileDataType type = parseDataType(headLineNum);
-		if (type != MapFileDataType.VEC2) {
-			throw new MapParseException(path, headLineNum);
+
+	private HittableList parseSectorWorld(String[] lines) throws MapParseException {
+		Vec2[] corners = new Vec2[0];
+		int[] sectors = new int[0];
+		Vec2[] heights = new Vec2[0];
+		Vec2[] portals = new Vec2[0];
+		Colour[] colours = new Colour[0];
+		for (int i = 0; i < lines.length; i++) {
+			String line = lines[i];
+			if (line.equals("!CORNER")) {
+				corners = extractVec2s(i + 1, lines);
+			} else if (line.equals("!SECTOR")) {
+				sectors = extractInts(i + 1, lines);	
+			} else if (line.equals("!HEIGHT")) {
+				heights = extractVec2s(i + 1, lines);	
+			} else if (line.equals("!PORTAL")) {
+				portals = extractVec2s(i + 1, lines);
+			} else if (line.equals("!COLOUR")) {
+				colours = extractColours(i + 1, lines);	
+			}
+		}
+		if ((corners.length == 0) || (sectors.length == 0) || (colours.length == 0)) {
+			throw new MapParseException("Must specify corners and sectors and colours");
 
 		}
-		int delimiterPtr = 0;
-		int portalPtr = 0;
-		int sectorCount = parseSectorCount(headLineNum);
-		HittableList world = new HittableList(sectorCount);
-		Vec2[] vectors = parseVec2(headLineNum);
-		Vec2[] corners = new Vec2[MAX_SECTOR_CORNERS];
-		int cornersHead = 0;
-		int[] portalCorners = new int[MAX_SECTOR_CORNERS];
-		int portalCornersHead = 0;
-		for (int i = 0; i < vectors.length; i++) {
-			int currentLine = headLineNum + i + 2;
-			corners[cornersHead++] = vectors[i];
-			if ((portalPtr < portalLineNumbers.length) 
-					&& (currentLine == portalLineNumbers[portalPtr])) {
-				portalPtr++;
-				portalCorners[portalCornersHead++] = i;
+		return constructSectorWorld(corners, sectors, heights, portals, colours);
+
+	}
+
+	private HittableList constructSectorWorld(Vec2[] corners, int[] sectors, 
+			Vec2[] heights, Vec2[] portals, Colour[] colours) throws MapParseException {
+		HittableList world = new HittableList(1000);
+		for (int i = 0; i < sectors.length; i++) {
+			// get sector limits
+			int limit = (i == sectors.length - 1)
+			? corners.length
+			: sectors[i + 1];
+			// read corners within limits
+			Vec2[] sectorCorners = new Vec2[limit - sectors[i]];
+			for (int j = sectors[i]; j < limit; j++) {
+				sectorCorners[j - sectors[i]] = corners[j];	
 			}
-			if (currentLine == delimiterLineNumbers[delimiterPtr]) {
-				delimiterPtr++;
-				Vec2[] cornersToAdd = new Vec2[cornersHead];
-				for (int j = 0; j < cornersToAdd.length; j++) {
-					cornersToAdd[j] = corners[j];
+			// read portals within limits
+			int[] sectorPortals = new int[sectorCorners.length];
+			int head = 0;
+			for (int j = 0; j < portals.length; j++) {
+				if (portals[j].x() < limit) {
+					sectorPortals[head++] = sectors[i] - (int) portals[j].x();	
+					sectorPortals[head++] = sectors[i] - (int) portals[j].y();	
 				}
-				Sector toAdd = new Sector(cornersToAdd, portalCorners);
-				world.addHittable(toAdd);
-				corners = new Vec2[MAX_SECTOR_CORNERS];
-				cornersHead = 0;
-				portalCorners = new int[MAX_SECTOR_CORNERS];
-				portalCornersHead = 0;
 			}
+			sectorPortals = Global.reduceArray(sectorPortals, head);
+			// create sector
+			Sector sec = new Sector(sectorCorners, sectorPortals);	
+			sec.setHeight(heights[i].x(), heights[i].y());
+			System.out.println(sec.toString());
+			world.addHittable(sec);
 		}
 		return world;
 
 	}
 
-	private HittableList parseCubeWorld(int headLineNum, Colour[] colours) 
+	private int[] extractInts(int startLine, String[] lines) 
 			throws MapParseException {
-		MapFileDataType type = parseDataType(headLineNum);
-		if (type != MapFileDataType.INTS) {
-			throw new MapParseException(path, headLineNum);
-
-		}
-		int arrayLength = parseArrayLength(headLineNum);
-		String[] arrayLines = extractDataUnderHeader(headLineNum);
-		int[][] map = new int[arrayLines.length][arrayLength];
-		for (int i = 0; i < arrayLines.length; i++) {
-			String line = arrayLines[i];
-			boolean didStart = false;
-			boolean didEnd = false;
-			int[] parsedLine = new int[arrayLength];
-			int parsedLineHead = 0;
-			for (int j = 0; j < line.length(); j++) {
-				char c = line.charAt(j);
-				if (!didStart && (c == '<')) {
-					didStart = true;
-					continue;
+		int[] array = new int[lines.length - startLine];
+		int head = 0;
+		for (int i = startLine; i < lines.length; i++) {
+			String line = lines[i];
+			if (line.charAt(0) == '!') {
+				if (head == 0) {
+					throw new MapParseException(path, i);
 
 				}
-				if (didStart && !didEnd && (c == '>')) {
-					didEnd = true;
-					continue;
-
-				}
-				if (didStart && !didEnd && (c != '|')) {
-					parsedLine[parsedLineHead++] = c - '0'; 
-				}
-			}
-			if (!didStart || !didEnd) {
-				throw new MapParseException(path, headLineNum, i);
-
-			}
-			map[i] = parsedLine;
-		}
-		return new CubeWorld(map, colours); 	
-
-	}
-
-	private Vec2[] parseVec2(int headLineNum) throws MapParseException {
-		MapFileDataType type = parseDataType(headLineNum);
-		if (type != MapFileDataType.VEC2) {
-			throw new MapParseException(path, headLineNum);
-
-		}
-		String[] arrayLines = extractDataUnderHeader(headLineNum);
-		Vec2[] parsedLines = new Vec2[arrayLines.length];
-		for (int i = 0; i < arrayLines.length; i++) {
-			String line = arrayLines[i];
-			boolean didStart = false;
-			boolean didEnd = false;
-			Vec2 parsedLine = new Vec2();
-			String dataString = "";
-			int axisToAdd = 0;
-			for (int j = 0; j < line.length(); j++) {
-				char c = line.charAt(j);
-				if (!didStart && (c == '<')) {
-					didStart = true;
-					continue;
-
-				}
-				if (didStart && (c == '>')) {
-					didEnd = true;
-					parsedLine.setAxis(axisToAdd++, Double.valueOf(dataString));
-					dataString = "";
-					continue;
-
-				} 
-				if (didStart && !didEnd) {
-					if (c != '|') {
-						dataString += c;	
-					} else {
-						parsedLine.setAxis(axisToAdd++, Double.valueOf(dataString));
-						dataString = "";
-					}
-				}
-			}
-			if (!didStart || !didEnd) {
-				throw new MapParseException(path, headLineNum);
-
-			}
-			parsedLines[i] = parsedLine;
-		}
-		return parsedLines;
-
-	}
-
-	private Colour[] parseColours(int headLineNum) throws MapParseException {
-		MapFileDataType type = parseDataType(headLineNum);
-		if (type != MapFileDataType.COLOUR) {
-			throw new MapParseException(path, headLineNum);
-
-		}
-		String[] arrayLines = extractDataUnderHeader(headLineNum);
-		Colour[] colours = new Colour[arrayLines.length];
-		int coloursHead = 0;
-		for (int i = 0; i < arrayLines.length; i++) {
-			String line = arrayLines[i];
-			boolean didStart = false;
-			boolean didEnd = false;
-			Colour parsedLine = new Colour();
-			String dataString = "";
-			int componentToAdd = 0;
-			for (int j = 0; j < line.length(); j++) {
-				char c = line.charAt(j);
-				if (!didStart && (c == '<')) {
-					didStart = true;
-					continue;
-
-				}
-				if (didStart && (c == '>')) {
-					didEnd = true;
-					parsedLine.setComponent(componentToAdd++, Double.valueOf(dataString));
-					dataString = "";
-					continue;
-
-				}
-				if (didStart && !didEnd) {
-					if (c != '|') {
-						dataString += c;
-					} else {
-						parsedLine.setComponent(componentToAdd++, Double.valueOf(dataString));
-						dataString = "";
-					}
-				}
-			}
-			if (!didStart || !didEnd) {
-				throw new MapParseException(path, headLineNum, i);
-
-			}
-			colours[coloursHead++] = parsedLine;
-		}
-		return colours;
-
-	}
-	
-	private int parseIntBetweenChars(int headLineNum, char starter, char ender) 
-			throws MapParseException {
-		return parseIntBetweenChars(headLineNum, starter, ender, ender);
-
-	}
-
-	private int parseIntBetweenChars(int headLineNum, char starter, char ender, char altEnder) 
-			throws MapParseException {
-		boolean didStart = false;
-		boolean didEnd = false;
-		String dataString = "";
-		String line = lines[headLineNum];
-		for (int i = 0; i < line.length(); i++) {
-			char c = line.charAt(i);
-			if (!didStart && (c == starter)) {
-				didStart = true;
-				continue;
-
-			}
-			if (didStart && ((c == ender) || (c == altEnder))) { 
-				didEnd = true;
 				break;
 
 			}
-			if (didStart) {
-				dataString += c;	
-				continue;
+			String[] nums = line.split("\\s+");
+			if (nums.length != 1) {
+				throw new MapParseException(path, i);
 
 			}
+			int num = Integer.valueOf(nums[0]);
+			array[head++] = num;
 		}
-		if (!didStart || !didEnd) {
-			throw new MapParseException(path, headLineNum);
-
-		}
-		return Integer.valueOf(dataString);
+		return Global.reduceArray(array, head);
 
 	}
 
-	private int parseSectorCount(int headLineNum) throws MapParseException {
-		return parseIntBetweenChars(headLineNum, ':', '#');
-
-		//boolean didStart = false;
-		//boolean didEnd = false;
-		//String dataString = "";
-		//String line = lines[headLineNum];
-		//for (int i = 0; i < line.length(); i++) {
-		//	char c = line.charAt(i);
-		//	if (!didStart && (c == ':')) {
-		//		didStart = true;
-		//		continue;
-		//
-		//	}
-		//	if (didStart && (c == '#')) { 
-		//		didEnd = true;
-		//		break;
-		//
-		//	}
-		//	if (didStart && !didEnd) {
-		//		dataString += c;	
-		//		continue;
-		//
-		//	}
-		//}
-		//if (!didStart || !didEnd) {
-		//	throw new MapParseException(path, headLineNum);
-		//
-		//}
-		//return Integer.valueOf(dataString);
-		//
-	}
-
-	private int parseArrayLength(int headLineNum) throws MapParseException {
-		return parseIntBetweenChars(headLineNum, '~', '#', ':');
-
-		//boolean didStart = false;
-		//boolean didEnd = false;
-		//String dataString = "";
-		//String line = lines[headLineNum];
-		//for (int i = 0; i < line.length(); i++) {
-		//	char c = line.charAt(i);
-		//	if (!didStart && (c == '~')) {
-		//		didStart = true;
-		//		continue;
-		//
-		//	}
-		//	if (didStart && ((c == '#') || (c == ':'))) {
-		//		didEnd = true;
-		//		break;
-		//
-		//	}
-		//	if (didStart && !didEnd) {
-		//		dataString += c;	
-		//		continue;
-		//
-		//	}
-		//}
-		//if (!didStart || !didEnd) {
-		//	throw new MapParseException(path, headLineNum);
-		//
-		//}
-		//return Integer.valueOf(dataString);
-		//
-	}
-
-	private MapFileDataType parseDataType(int headLineNum) throws MapParseException {
-		boolean didStart = false;
-		boolean didEnd = false;
-		String dataString = "";
-		String line = lines[headLineNum];
-		for (int i = 0; i < line.length(); i++) {
-			char c = line.charAt(i);
-			if (!didStart && (c == '#')) {
-				didStart = true;
-				continue;
-
-			} 
-			if (didStart && (c == '~')) {
-				didEnd = true;
-				continue;
-
-			}
-			if (didStart && !didEnd) {
-				dataString += c;	
-			}
-		}
-		if (!didStart || !didEnd) {
-			throw new MapParseException(path, headLineNum);
-
-		}
-		if (charsMatch(dataString, "INT*")) {
-			int len = Integer.valueOf(dataString.substring(3));
-			MapFileDataType temp = MapFileDataType.INTS;
-			temp.setLength(len);
-			return temp;
-
-		} else if (charsMatch(dataString, "VEC2")) {
-			return MapFileDataType.VEC2;
-
-		} else if (charsMatch(dataString, "INT")) {
-			return MapFileDataType.INT;
-
-		} else if (charsMatch(dataString, "COLOUR")) {
-			return MapFileDataType.COLOUR;
-
-		} else {
-			throw new MapParseException(path, headLineNum);
-
-		}
-	}
-
-	private String[] extractDataUnderHeader(int headLineNum) throws MapParseException {
-		int arrayLength = parseArrayLength(headLineNum);
-		String[] arrayLines = new String[arrayLength];
-		int arrayLinesHead = 0;
-		boolean didStart = false;
-		boolean didEnd = false;
-		for (int i = headLineNum + 1; i < headLineNum + arrayLength + 3; i++) {
+	private Vec2[] extractVec2s(int startLine, String[] lines) 
+			throws MapParseException {
+		Vec2[] array = new Vec2[lines.length - startLine];
+		int head = 0;
+		for (int i = startLine; i < lines.length; i++) {
 			String line = lines[i];
-			if (!didStart && charsMatch(line, "START")) {
-				didStart = true;
-				continue;
+			if (line.charAt(0) == '!') {
+				if (head == 0) {
+					throw new MapParseException(path, i);
+
+				}
+				break;
 
 			}
-			if (didStart && !didEnd && charsMatch(line, "END")) {
-				didEnd = true;
-				continue;
+			String[] nums = line.split("\\s+");
+			if (nums.length != 2) {
+				throw new MapParseException(path, i);
 
 			}
-			if (didStart && !didEnd) {
-				arrayLines[arrayLinesHead++] = line;
-			}
+			double x = Double.valueOf(nums[0]);
+			double y = Double.valueOf(nums[1]);
+			array[head++] = new Vec2(x, y);
 		}
-		if (!didStart || !didEnd) {
-			throw new MapParseException();
-
-		}
-		return arrayLines;
+		return Global.reduceArray(array, head);
 
 	}
 
-	public boolean charsMatch(String input, String pattern) {
-		final char WILD_CARD = '*';
-		char[] inp = input.toCharArray();
-		char[] pat = pattern.toCharArray();
-		int patternPtr = 0;
-		char wildEnd = ' ';
-		if (pat.length > inp.length) {
-			return false;
-
-		}
-		for (int i = 0; i < inp.length; i++) {
-			if (patternPtr >= pat.length) {
-				return true;
-
-			}
-			if ((pat[patternPtr] == WILD_CARD) && (wildEnd == ' ')) {
-				if (patternPtr >= pat.length - 1) {
-					return true;
+	private Colour[] extractColours(int startLine, String[] lines) 
+			throws MapParseException {
+		Colour[] array = new Colour[lines.length - startLine];
+		int head = 0;
+		for (int i = startLine; i < lines.length; i++) {
+			String line = lines[i];
+			if (line.charAt(0) == '!') {
+				if (head == 0) {
+					throw new MapParseException(path, i);
 
 				}
-				wildEnd = pat[patternPtr + 1];
-				continue;
+				return new Colour[0];	
 
 			}
-			if (inp[i] == wildEnd) {
-				wildEnd = ' ';
-				patternPtr++;
-			}
-			if (pat[patternPtr] != WILD_CARD) {
-				if (inp[i] != pat[patternPtr]) {
-					return false;
+			String[] nums = line.split("\\s+");
+			if (nums.length != 3) {
+				throw new MapParseException(path, i);
 
-				}
-				patternPtr++;
 			}
+			double r = Double.valueOf(nums[0]);
+			double g = Double.valueOf(nums[1]);
+			double b = Double.valueOf(nums[2]);
+			array[head++] = new Colour(r, g, b);
 		}
-		return true;
+		return Global.reduceArray(array, head);
 
 	}
 }

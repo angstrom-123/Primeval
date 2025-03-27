@@ -41,10 +41,9 @@ public class HittableList extends Hittable {
 						closestHit = tempRec.t();
 						rec.setT(tempRec.t());
 						rec.setColour(tempRec.colour());
-						if (tempRec.sectorFloor() != 0.0) {
+						if ((tempRec.sectorFloor() != 0.0) 
+								&& (tempRec.sectorCeiling() != 0.0)) {
 							rec.setFloor(tempRec.sectorFloor());
-						}
-						if (tempRec.sectorCeiling() != 0.0) {
 							rec.setCeiling(tempRec.sectorCeiling());
 						}
 					}
@@ -52,6 +51,36 @@ public class HittableList extends Hittable {
 			}
 		}
 		return didHit;
+
+	}
+
+	public HitRecord[] allHits(Ray r, Interval tInterval) {
+		HitRecord[] hits = new HitRecord[100];
+		int hitsHead = 0;
+		for (int i = 0; i < head; i++) {
+			Hittable h = hittables[i];
+			if (h instanceof HittableList) {
+				HittableList hl = (HittableList) h;
+				for (HitRecord rec : hl.allHits(r, tInterval.copy())) {
+					if ((rec.t() >= 0.0) & (rec.t() < tInterval.max())) {
+						if (hl instanceof Sector) {
+							Sector sec = (Sector) hl;
+							rec.setFloor(sec.floorHeight());
+							rec.setCeiling(sec.ceilingHeight());
+						}
+						hits[hitsHead++] = rec.copy();
+					}
+				}
+			} else {
+				HitRecord tempRec = new HitRecord();
+				if (h.hit(r, tInterval.copy(), tempRec)) {
+					if ((tempRec.t() >= 0.0) && (tempRec.t() < tInterval.max())) {
+						hits[hitsHead++] = tempRec;
+					}
+				}
+			}
+		}
+		return Global.reduceArray(hits, hitsHead);
 
 	}
 

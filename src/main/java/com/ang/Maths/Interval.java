@@ -11,6 +11,11 @@ public class Interval {
 		this.max = max;
 	}
 
+	public Interval copy() {
+		return new Interval(min, max);
+
+	}
+
 	public boolean contains(double val) {
 		if (min < max) {
 			if ((val >= min) && (val <= max)) {

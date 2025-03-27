@@ -67,20 +67,21 @@ public class Camera {
 
 	public long draw(HittableList world) {
 		long startTime = System.currentTimeMillis();
+		// Clearing the previous frame
+		renderer.writeTile(backgroundCol, imageWidth, imageHeight, 0, 0);
 		// Drawing the world
 		for (int i = 0; i < imageWidth; i++) {
 			Ray r = getRay(i);	
-			HitRecord rec = new HitRecord();
-			if (world.hit(r, new Interval(0.001, Global.INFINITY), rec)) {
-				int[] bounds = getColumnBounds(r, rec);
-				renderer.writeColumn(rayColour(r, rec), backgroundCol, i, 
+			HitRecord[] hits = world.allHits(r, Interval.universe());
+			sortDepth(hits);
+			for (int j = hits.length - 1; j >= 0; j--) {
+				HitRecord hitRec = hits[j];
+				int[] bounds = getColumnBounds(r, hitRec);
+				renderer.writeColumn(rayColour(r, hitRec), i, 
 						bounds[0], bounds[1]);
-			} else {
-				renderer.writeColumn(backgroundCol, backgroundCol, i, 
-						imageHeight); 
 			}
 		}
-		// Refreshing the screen
+		// Displaying buffer on screen
 		renderer.repaint();
 		return System.currentTimeMillis() - startTime;
 
@@ -116,5 +117,17 @@ public class Camera {
 		Vec2 rayDir = pixelPos.sub(position);
 		return new Ray(position, rayDir);
 
+	}
+
+	private void sortDepth(HitRecord[] hits) {
+		for (int i = hits.length - 1; i >= 0; i--) {
+			for (int j = 1; j <= i; j++) {
+				if (hits[j - 1].t() > hits[j].t()) {
+					HitRecord temp = hits[j - 1].copy();
+					hits[j - 1] = hits[j].copy();
+					hits[j] = temp;
+				}
+			}
+		}
 	}
 }

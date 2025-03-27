@@ -10,6 +10,16 @@ public class HitRecord {
 
 	public HitRecord() {}
 
+	public HitRecord copy() {
+		HitRecord temp = new HitRecord();
+		temp.setT(t);
+		temp.setColour(colour);
+		temp.setFloor(sectorFloor);
+		temp.setCeiling(sectorCeiling);
+		return temp;
+
+	}
+
 	public double t() {
 		return t;
 
