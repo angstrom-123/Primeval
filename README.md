@@ -52,3 +52,14 @@ layouts as it will allow for adding verticality to maps.
 
 <img src="https://github.com/user-attachments/assets/682c2bfd-569d-479d-affd-4409225cc1d8" width="50%">
 
+Now that I could have multiple sectors of varying height, it became obvious that
+they were being rendered naively. Initially, I saved the distance from the camera
+of every point in the 2D world and ignored any further hits. This would work in a
+real 3D world as different objects within the same vertical slice would only partially
+occlude each other when one behind the other. This does not work the same way in 
+this setting as this would mean that there can only be one sector drawn per vertical
+slice. To fix this, I sorted each collision of the vision ray with the environment
+by distance and drew the sectors back to front. This effectively simulates real 3D
+occlusion. Here we can see both sectors being drawn in the same vertical slice.
+
+<img src="https://github.com/user-attachments/assets/46db7ea8-2ee9-4dd1-9c03-8d9766cfdb15" width="50%">
