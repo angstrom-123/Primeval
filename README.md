@@ -62,4 +62,4 @@ slice. To fix this, I sorted each collision of the vision ray with the environme
 by distance and drew the sectors back to front. This effectively simulates real 3D
 occlusion. Here we can see both sectors being drawn in the same vertical slice.
 
-<img src="https://github.com/user-attachments/assets/46db7ea8-2ee9-4dd1-9c03-8d9766cfdb15" width="50%">
+<img src="https://github.com/user-attachments/assets/e94afc06-cfaf-48da-b79e-92fde0517167" width="50%">
