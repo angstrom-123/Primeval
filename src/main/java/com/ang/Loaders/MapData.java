@@ -1,11 +1,11 @@
 package com.ang.Loaders;
 
-import com.ang.Hittables.HittableList;
+import com.ang.Hittables.SectorWorld;
 import com.ang.Maths.Vec2;
 
 public class MapData {
 	private WorldType worldType;
-	private HittableList world;
+	private SectorWorld world;
 	private Vec2 position;
 	private Vec2 facing;
 
@@ -15,7 +15,7 @@ public class MapData {
 		this.worldType = worldType;
 	}
 
-	public void setWorld(HittableList world) {
+	public void setWorld(SectorWorld world) {
 		this.world = world;
 	}
 
@@ -32,7 +32,7 @@ public class MapData {
 
 	}
 
-	public HittableList world() {
+	public SectorWorld world() {
 		return world;
 	
 	}
@@ -48,7 +48,8 @@ public class MapData {
 	}
 
 	public boolean isPopulated() {
-		if ((worldType != null) && (world != null) && (position != null) && (facing != null)) {
+		if ((worldType != null) && (world != null) 
+				&& (position != null) && (facing != null)) {
 			return true;
 
 		}

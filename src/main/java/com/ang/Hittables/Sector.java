@@ -1,32 +1,27 @@
 package com.ang.Hittables;
 
-import com.ang.Maths.*;
+import com.ang.Global;
 import com.ang.Graphics.Colour;
+import com.ang.Maths.*;
 
-public class Sector extends HittableList {
+public class Sector {
+	private Edge[] walls;
 	private double floorHeight;
 	private double ceilingHeight;
 	// TODO: implement light level
 	private double lightLevel = 1.0; 
 
-	public Sector(Vec2[] corners, int[] portalCorners) {
-		super(corners.length + 1);
+	public Sector(Vec2[] corners, int[] portalIndices) {
+		walls = new Edge[corners.length];
+		int head = 0;
 		for (int i = 0; i < corners.length; i++) {
 			Edge wall;
-			if (i < corners.length - 1) {
-				wall = new Edge(corners[i], corners[i + 1],
-						new Colour(1.0, 1.0, 1.0));
-				if (isPortal(i, i + 1, portalCorners)) {
-					wall.setAsPortal();
-				}
-			} else {
-				wall = new Edge(corners[i], corners[0],
-						new Colour(1.0, 1.0, 1.0));
-				if (isPortal(i, 0, portalCorners)) {
-					wall.setAsPortal();
-				}
+			int nextI = (i < corners.length - 1) ? i + 1 : 0;
+			wall = new Edge(corners[i], corners[nextI], new Colour(1.0, 1.0, 1.0));
+			if (isPortal(i, nextI, portalIndices)) {
+				wall.setAsPortal();
 			}
-			super.addHittable(wall);
+			walls[head++] = wall;
 		}
 	}
 
@@ -71,15 +66,41 @@ public class Sector extends HittableList {
 
 	}
 
-	@Override
 	public boolean hit(Ray r, Interval tInterval, HitRecord rec) {
-		if (super.hit(r, tInterval, rec)) {
-			rec.setFloor(floorHeight);
-			rec.setCeiling(ceilingHeight);
-			return true;
-
+		boolean didHit = false;
+		double closestHit = Global.INFINITY;
+		HitRecord tempRec = new HitRecord();
+		for (int i = 0; i < walls.length; i++) {
+			Edge w = walls[i];
+			Interval bounds = new Interval(tInterval.min(), closestHit);
+			if (w.hit(r, bounds, tempRec)) {
+				if ((tempRec.t() >= 0.0) && (tempRec.t() < tInterval.max())) {
+					didHit = true;
+					closestHit = tempRec.t();
+					rec.setT(tempRec.t());
+					rec.setColour(tempRec.colour());
+					rec.setFloor(ceilingHeight);
+					rec.setCeiling(ceilingHeight);
+				}
+			}
 		}
-		return false;
+		return didHit;
+
+	}
+
+	public HitRecord[] allHits(Ray r, Interval tInterval) {
+		HitRecord[] hits = new HitRecord[walls.length];
+		int head = 0;
+		for (int i = 0; i < walls.length; i++) {
+			Edge w = walls[i];
+			HitRecord tempRec = new HitRecord();
+			if (w.hit(r, tInterval.copy(), tempRec)) {
+				tempRec.setFloor(floorHeight);
+				tempRec.setCeiling(ceilingHeight);
+				hits[head++] = tempRec;
+			}
+		}
+		return Global.reduceArray(hits, head);
 
 	}
 

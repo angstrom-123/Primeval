@@ -19,7 +19,7 @@ public class MapFileParser {
 		mapData.setFacing(parseSingleVector(lines, "!FACING"));
 		if (lines[0].equals("!PMAPv1.0.0")) {
 			mapData.setWorldType(WorldType.SECTORWORLD);
-			mapData.setWorld(parseSectorWorld(lines));
+			mapData.setWorld(parseWorld(lines));
 		} else {
 			throw new MapParseException(path, 0);
 
@@ -40,9 +40,6 @@ public class MapFileParser {
 
 			}
 		}
-		for (Vec2 v : extracted) {
-			System.out.println(v.toString());
-		}
 		if (extracted.length != 1) {
 			throw new MapParseException(path, lineNum);
 
@@ -51,7 +48,7 @@ public class MapFileParser {
 
 	}
 
-	private HittableList parseSectorWorld(String[] lines) throws MapParseException {
+	private SectorWorld parseWorld(String[] lines) throws MapParseException {
 		Vec2[] corners = new Vec2[0];
 		int[] sectors = new int[0];
 		Vec2[] heights = new Vec2[0];
@@ -75,13 +72,13 @@ public class MapFileParser {
 			throw new MapParseException("Must specify corners and sectors and colours");
 
 		}
-		return constructSectorWorld(corners, sectors, heights, portals, colours);
+		return consructWorld(corners, sectors, heights, portals, colours);
 
 	}
 
-	private HittableList constructSectorWorld(Vec2[] corners, int[] sectors, 
+	private SectorWorld consructWorld(Vec2[] corners, int[] sectors, 
 			Vec2[] heights, Vec2[] portals, Colour[] colours) throws MapParseException {
-		HittableList world = new HittableList(1000);
+		SectorWorld world = new SectorWorld(1000);
 		for (int i = 0; i < sectors.length; i++) {
 			// get sector limits
 			int limit = (i == sectors.length - 1)
@@ -96,17 +93,16 @@ public class MapFileParser {
 			int[] sectorPortals = new int[sectorCorners.length];
 			int head = 0;
 			for (int j = 0; j < portals.length; j++) {
-				if (portals[j].x() < limit) {
-					sectorPortals[head++] = sectors[i] - (int) portals[j].x();	
-					sectorPortals[head++] = sectors[i] - (int) portals[j].y();	
+				if ((portals[j].x() < limit) && (portals[j].y() < limit)) {
+					sectorPortals[head++] = (int) portals[j].x() - sectors[i];
+					sectorPortals[head++] = (int) portals[j].y() - sectors[i];
 				}
 			}
 			sectorPortals = Global.reduceArray(sectorPortals, head);
 			// create sector
 			Sector sec = new Sector(sectorCorners, sectorPortals);	
 			sec.setHeight(heights[i].x(), heights[i].y());
-			System.out.println(sec.toString());
-			world.addHittable(sec);
+			world.addSector(sec);
 		}
 		return world;
 

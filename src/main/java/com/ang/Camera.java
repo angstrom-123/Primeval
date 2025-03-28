@@ -65,11 +65,19 @@ public class Camera {
 		pixel0Position = position.sub(offset).add((pixelDeltaU).div(2.0));
 	}
 
-	public long draw(HittableList world) {
+	public long draw(SectorWorld world) {
 		long startTime = System.currentTimeMillis();
 		// Clearing the previous frame
 		renderer.writeTile(backgroundCol, imageWidth, imageHeight, 0, 0);
 		// Drawing the world
+		drawWalls(world);
+		// Displaying buffer on screen
+		renderer.repaint();
+		return System.currentTimeMillis() - startTime;
+
+	}
+
+	private void drawWalls(SectorWorld world) {
 		for (int i = 0; i < imageWidth; i++) {
 			Ray r = getRay(i);	
 			HitRecord[] hits = world.allHits(r, Interval.universe());
@@ -81,10 +89,6 @@ public class Camera {
 						bounds[0], bounds[1]);
 			}
 		}
-		// Displaying buffer on screen
-		renderer.repaint();
-		return System.currentTimeMillis() - startTime;
-
 	}
 
 	private Colour rayColour(Ray r, HitRecord rec) {

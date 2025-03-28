@@ -3,7 +3,7 @@ package com.ang.Hittables;
 import com.ang.Maths.*;
 import com.ang.Graphics.Colour;
 
-public class Edge extends Hittable {
+public class Edge {
 	private Vec2 p0;
 	private Vec2 p1;
 	private Colour albedo;
@@ -14,12 +14,11 @@ public class Edge extends Hittable {
 		this.p1 = p1;
 		this.albedo = albedo;
 	}
-
+	
 	public void setAsPortal() {
 		portal = true;
 	}
 
-	@Override
 	public boolean hit(Ray r, Interval tInterval, HitRecord rec) {
 		if (portal) {
 			return false;

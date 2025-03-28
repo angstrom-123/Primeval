@@ -14,7 +14,7 @@ public class Game implements ThreadInterface, InputInterface {
 	private InputListener 	il 				= new InputListener(this);
 	private Camera 			cam 			= new Camera(IMAGE_WIDTH);
 	private CameraMover		controller  	= new CameraMover(cam);
-	private HittableList	world;
+	private SectorWorld		world;
 
 	public Game(String mapFileName) {
 		if (mapFileName == null) {
