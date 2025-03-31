@@ -1,7 +1,7 @@
 package com.ang.Primeval.Core.Hittables;
 
 import com.ang.Primeval.Core.Maths.*;
-import com.ang.Primeval.Core.Graphics.Colour;
+import com.ang.Primeval.Graphics.Colour;
 
 public class Edge {
 	private Vec2 p0;

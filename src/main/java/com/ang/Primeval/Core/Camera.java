@@ -1,6 +1,6 @@
 package com.ang.Primeval.Core;
 
-import com.ang.Primeval.Core.Graphics.*;
+import com.ang.Primeval.Graphics.*;
 import com.ang.Primeval.Core.Maths.*;
 import com.ang.Primeval.Core.Hittables.*;
 import com.ang.Primeval.Inputs.MovementInputListener;

@@ -1,4 +1,4 @@
-package com.ang.Primeval.Core.Graphics;
+package com.ang.Primeval.Graphics;
 
 import com.ang.Primeval.Inputs.*;
 import com.ang.Primeval.Core.Global;
@@ -22,6 +22,16 @@ public class Renderer {
 		this.img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		this.imgPanel = new ImagePanel(img);
 		init(listener);
+	}
+
+	public int windowWidth() {
+		return frame.getWidth();
+
+	}
+
+	public int windowHeight() {
+		return frame.getHeight();
+
 	}
 
 	private void init(Object listener) {

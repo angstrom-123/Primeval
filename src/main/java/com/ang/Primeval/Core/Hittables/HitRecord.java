@@ -1,6 +1,6 @@
 package com.ang.Primeval.Core.Hittables;
 
-import com.ang.Primeval.Core.Graphics.Colour;
+import com.ang.Primeval.Graphics.Colour;
 
 public class HitRecord {
 	private double t;

@@ -1,9 +1,9 @@
 package com.ang.Primeval.Editor;
 
-import com.ang.Primeval.Core.Exceptions.*;
-import com.ang.Primeval.Core.Graphics.*;
 import com.ang.Primeval.Core.Hittables.*;
 import com.ang.Primeval.Core.Maths.*;
+import com.ang.Primeval.Exceptions.*;
+import com.ang.Primeval.Graphics.*;
 import com.ang.Primeval.Inputs.*;
 import com.ang.Primeval.Util.Loaders.FileReader;
 import com.ang.Primeval.Util.Loaders.Pmap.*;
@@ -34,7 +34,7 @@ public class MapEditor implements MouseInputInterface {
 		FileReader reader = new FileReader(mapDirPath);
 		try {
 			lines = reader.readFile(fileName);
-		} catch (MapReadException e) {
+		} catch (FileReadException e) {
 			System.err.println(e.getMessage());
 			return null;
 

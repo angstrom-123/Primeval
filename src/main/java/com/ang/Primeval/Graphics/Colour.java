@@ -1,4 +1,4 @@
-package com.ang.Primeval.Core.Graphics;
+package com.ang.Primeval.Graphics;
 
 public class Colour {
 	double r;

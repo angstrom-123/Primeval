@@ -1,6 +1,6 @@
 package com.ang.Primeval.Core;
 
-import com.ang.Primeval.Core.Graphics.Colour;
+import com.ang.Primeval.Graphics.Colour;
 import com.ang.Primeval.Core.Hittables.*;
 import com.ang.Primeval.Core.Maths.Vec2;
 import com.ang.Primeval.Core.Threads.UpdateWorker;

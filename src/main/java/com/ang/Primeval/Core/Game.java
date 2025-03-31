@@ -1,7 +1,7 @@
 package com.ang.Primeval.Core;
 
 import com.ang.Primeval.Editor.MapEditor;
-import com.ang.Primeval.Core.Exceptions.*;
+import com.ang.Primeval.Exceptions.*;
 import com.ang.Primeval.Core.Hittables.*;
 import com.ang.Primeval.Core.Threads.*;
 import com.ang.Primeval.Inputs.*;
@@ -93,7 +93,7 @@ public class Game implements ThreadInterface, MovementInputInterface {
 		String[] fileData;
 		try {
 			fileData = mapReader.readFile(fileName);
-		} catch (MapReadException e) {
+		} catch (FileReadException e) {
 			e.printStackTrace();
 			return false; 
 
