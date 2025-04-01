@@ -48,6 +48,8 @@ public class Renderer {
 		} else if (listener instanceof MouseInputListener) {
 			MouseInputListener mil = (MouseInputListener) listener;
 			imgPanel.addMouseMotionListener(mil);
+			imgPanel.addMouseListener(mil);
+			imgPanel.addMouseWheelListener(mil);
 		} else {
 			System.err.println("Invalid listener supplied to renderer init");
 			Global.uw.doStop();
@@ -67,6 +69,10 @@ public class Renderer {
 
 	public void writePixel(Colour colour, int x, int y) {
 		int col = processToInt(colour);
+		if (!inBounds(x, y)) {
+			return;
+
+		}
 		img.setRGB(x, y, col);
 	}
 
@@ -75,6 +81,10 @@ public class Renderer {
 		// fill in pixels from the top, so higher pixels have a smaller y value
 		for (int y = 0; y < height; y++) {
 			if ((y >= top) && (y <= bottom)) {
+				if (!inBounds(x, y)) {
+					continue;
+
+				}
 				img.setRGB(x, y, columnColour);
 			}
 		}
@@ -84,6 +94,23 @@ public class Renderer {
 		int tileColour = processToInt(colour);
 		for (int j = y; j < y + height; j++) {
 			for (int i = x; i < x + width; i++) {
+				if (!inBounds(i, j)) {
+					continue;
+
+				}
+				img.setRGB(i, j, tileColour);
+			}
+		}
+	}
+
+	public void writeTileAround(Colour colour, int width, int height, int x, int y) {
+		int tileColour = processToInt(colour);
+		for (int j = y - (height / 2); j < y + (height / 2); j++) {
+			for (int i = x - (width / 2); i < x + (width / 2); i++) {
+				if (!inBounds(i, j)) {
+					continue;
+
+				}
 				img.setRGB(i, j, tileColour);
 			}
 		}
@@ -117,7 +144,9 @@ public class Renderer {
 		int error = (2 * dy) - dx;
 		int y = y0;
 		for (int x = x0; x < x1; x++) {
-			img.setRGB(x, y, colour);
+			if (inBounds(x, y)) {
+				img.setRGB(x, y, colour);
+			}
 			if (error > 0) {
 				y += yIncrement;
 				error += 2 * (dy - dx);
@@ -138,7 +167,9 @@ public class Renderer {
 		int error = (2 * dx) - dy;
 		int x = x0;
 		for (int y = y0; y < y1; y++) {
-			img.setRGB(x, y, colour);
+			if (inBounds(x, y)) {
+				img.setRGB(x, y, colour);
+			}
 			if (error > 0) {
 				x += xIncrement;
 				error += 2 * (dx - dy);
@@ -163,6 +194,15 @@ public class Renderer {
 		int bComponent = (int) Math.min(b * 255, 255);
 		// convert to BufferedImage.TYPE_INT_RGB
 		return (rComponent << 16) | (gComponent << 8) | (bComponent);
+
+	}
+
+	private boolean inBounds(int x, int y) {
+		if ((x < 0) || (x >= width) || (y < 0) || (y >= height)) {
+			return false;
+
+		}
+		return true;
 
 	}
 }

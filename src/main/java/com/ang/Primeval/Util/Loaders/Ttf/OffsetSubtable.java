@@ -1,4 +1,4 @@
-package com.ang.Primeval.Util.Loaders.Ttl;
+package com.ang.Primeval.Util.Loaders.Ttf;
 
 public class OffsetSubtable {
 	public int scalerType;

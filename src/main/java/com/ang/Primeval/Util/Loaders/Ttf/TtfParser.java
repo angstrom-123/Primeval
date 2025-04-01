@@ -1,13 +1,12 @@
-package com.ang.Primeval.Util.Loaders.Ttl;
+package com.ang.Primeval.Util.Loaders.Ttf;
 
 import com.ang.Primeval.Util.Global;
-import com.ang.Primeval.Util.Loaders.FileReader;
 
-public class TtlParser {
+public class TtfParser {
 	private String path;
 	private int head;
 
-	public TtlParser(String path) {
+	public TtfParser(String path) {
 		this.path = path;
 	}
 
@@ -73,8 +72,6 @@ public class TtlParser {
 	private int read32(byte[] bytes) {
 		return ((bytes[head] & 0xFF) << 24) | ((bytes[head + 1] & 0xFF) << 16)
 				| ((bytes[head + 2] & 0xFF) << 8) | (bytes[head + 3] & 0xFF);
-		//return (bytes[head] << 24) | (bytes[head + 1] << 16) 
-		//		| (bytes[head + 2] << 8) | bytes[head + 4];
 
 	}
 
