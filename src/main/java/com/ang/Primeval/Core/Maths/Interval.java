@@ -1,6 +1,6 @@
 package com.ang.Primeval.Core.Maths;
 
-import com.ang.Primeval.Core.Global;
+import com.ang.Primeval.Util.Global;
 
 public class Interval {
 	double min;

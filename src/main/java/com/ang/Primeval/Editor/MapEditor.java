@@ -19,14 +19,40 @@ public class MapEditor implements MouseInputInterface {
 	private Colour backgroundColour = new Colour(0.9, 0.9, 0.9);
 	private Colour lineColour = new Colour(0.0, 0.0, 0.0);
 	private String mapDirPath;
+	private String fontDirPath;
 
-	public MapEditor(String mapDirPath) {
+	public MapEditor(String mapDirPath, String fontDirPath) {
 		this.mapDirPath = mapDirPath;
+		this.fontDirPath = fontDirPath;
 	}
 
 	public void test() {
 		MapData mapData = loadMap("testMap.pmap");
 		drawMapData(mapData);
+		loadFont("Inconsolata/static/Inconsolata-Regular.ttf");
+	}
+
+	private void loadFont(String fileName) {
+		byte[] bytes;
+		FileReader reader = new FileReader(fontDirPath);
+		try {
+			bytes = reader.readFileAsBytes(fileName);
+		} catch (FileReadException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+			return;
+		
+		}
+		TtlParser parser = new TtlParser(fontDirPath + fileName);
+		try {
+			parser.readTtl(bytes);
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+			return;
+
+		}
+		System.out.println("Font loaded");
 	}
 
 	private MapData loadMap(String fileName) {

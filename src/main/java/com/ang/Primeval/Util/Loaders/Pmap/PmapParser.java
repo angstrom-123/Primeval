@@ -1,6 +1,6 @@
 package com.ang.Primeval.Util.Loaders.Pmap;
 
-import com.ang.Primeval.Core.Global;
+import com.ang.Primeval.Util.Global;
 import com.ang.Primeval.Exceptions.*;
 import com.ang.Primeval.Graphics.Colour;
 import com.ang.Primeval.Core.Hittables.*;

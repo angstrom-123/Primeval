@@ -5,11 +5,13 @@ import com.ang.Primeval.Exceptions.*;
 import com.ang.Primeval.Core.Hittables.*;
 import com.ang.Primeval.Core.Threads.*;
 import com.ang.Primeval.Inputs.*;
+import com.ang.Primeval.Util.Global;
 import com.ang.Primeval.Util.Loaders.FileReader;
 import com.ang.Primeval.Util.Loaders.Pmap.*;
 
 public class Game implements ThreadInterface, MovementInputInterface {
 	private final String 	MAP_DIR_PATH	= "/mapData/";
+	private final String 	FONT_DIR_PATH	= "/fontData/";
 	private final int 		IMAGE_WIDTH 	= 600;
 	private final int 		FRAME_MS 		= 1000 / 60;
 	private boolean[] 		keyInputs 		= new boolean[256];
@@ -71,7 +73,7 @@ public class Game implements ThreadInterface, MovementInputInterface {
 	}
 
 	private void testEditor() {
-		MapEditor editor = new MapEditor(MAP_DIR_PATH);
+		MapEditor editor = new MapEditor(MAP_DIR_PATH, FONT_DIR_PATH);
 		editor.test();
 	}
 
