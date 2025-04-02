@@ -2,34 +2,34 @@ package com.ang.Primeval.Core;
 
 public class Main {
     public static void main(String[] args) {
-		Game g = new Game();
+		PGame g = new PGame();
 		g.start(parseArgs(args));
     }
 
-	private static Mode[] parseArgs(String[] args) {
-		Mode[] out = new Mode[args.length];
+	private static PMode[] parseArgs(String[] args) {
+		PMode[] out = new PMode[args.length];
 		int head = 0;
 		for (String arg : args) {
 			switch (arg) {
 			case "-test":
 			case "-t":
-				out[head++] = Mode.TEST;
+				out[head++] = PMode.TEST;
 				break;
 
 			case "-editor":
 			case "-edit":
 			case "-e":
-				out[head++] = Mode.EDIT;
+				out[head++] = PMode.EDIT;
 				break;
 
 			case "-game":
 			case "-g":
-				out[head++] = Mode.GAME;
+				out[head++] = PMode.GAME;
 				break;
 
 			default:
 				System.err.println("Invalid arguments");
-				return new Mode[0];
+				return new PMode[0];
 
 			}
 		}
