@@ -1,34 +1,34 @@
-package com.ang.Primeval.Files.PMAP;
+package com.ang.primeval.files.pmap;
 
-import com.ang.Primeval.PGlobal;
-import com.ang.Primeval.Exceptions.*;
-import com.ang.Primeval.Graphics.PColour;
-import com.ang.Primeval.Utils.PArrays;
-import com.ang.Primeval.Hittables.*;
-import com.ang.Primeval.Maths.*;
+import com.ang.primeval.PGlobal;
+import com.ang.primeval.exceptions.*;
+import com.ang.primeval.graphics.PColour;
+import com.ang.primeval.utils.PArrays;
+import com.ang.primeval.hittables.*;
+import com.ang.primeval.maths.*;
 
-public class PMapParser {
+public class PPMapParser {
 	private String path;
 
-	public PMapParser(String path) {
+	public PPMapParser(String path) {
 		this.path = path;
 	}
 
-	public PMapData parseMapData(String[] lines) throws PMapParseException {
-		PMapData mapData = new PMapData();
+	public PPMapData parseMapData(String[] lines) throws PPMapParseException {
+		PPMapData mapData = new PPMapData();
 		mapData.setPosition(parseSingleVector(lines, "!POSITION"));
 		mapData.setFacing(parseSingleVector(lines, "!FACING"));
 		if (lines[0].equals("!PMAPv1.0.0")) {
 			mapData.setWorld(parseWorld(lines));
 		} else {
-			throw new PMapParseException(path, 0);
+			throw new PPMapParseException(path, 0);
 
 		}
 		return mapData;
 
 	}
 
-	private PVec2 parseSingleVector(String[] lines, String match) throws PMapParseException {
+	private PVec2 parseSingleVector(String[] lines, String match) throws PPMapParseException {
 		PVec2[] extracted = new PVec2[0];
 		int lineNum = 0;
 		for (int i = 0; i < lines.length; i++) {
@@ -41,14 +41,14 @@ public class PMapParser {
 			}
 		}
 		if (extracted.length != 1) {
-			throw new PMapParseException(path, lineNum);
+			throw new PPMapParseException(path, lineNum);
 
 		}
 		return extracted[0];
 
 	}
 
-	private PSectorWorld parseWorld(String[] lines) throws PMapParseException {
+	private PSectorWorld parseWorld(String[] lines) throws PPMapParseException {
 		PVec2[] corners = new PVec2[0];
 		int[] sectors = new int[0];
 		PVec2[] heights = new PVec2[0];
@@ -69,15 +69,15 @@ public class PMapParser {
 			}
 		}
 		if ((corners.length == 0) || (sectors.length == 0) || (colours.length == 0)) {
-			throw new PMapParseException("Must specify corners and sectors and colours");
+			throw new PPMapParseException("Must specify corners and sectors and colours");
 
 		}
 		return consructWorld(corners, sectors, heights, portals, colours);
 
 	}
 
-	private PSectorWorld consructWorld(PVec2[] corners, int[] sectors, 
-			PVec2[] heights, PVec2[] portals, PColour[] colours) throws PMapParseException {
+	private PSectorWorld consructWorld(PVec2[] corners, int[] sectors, PVec2[] heights, 
+			PVec2[] portals, PColour[] colours) throws PPMapParseException {
 		PSectorWorld world = new PSectorWorld(1000);
 		for (int i = 0; i < sectors.length; i++) {
 			// get sector limits
@@ -109,14 +109,14 @@ public class PMapParser {
 	}
 
 	private int[] extractInts(int startLine, String[] lines) 
-			throws PMapParseException {
+			throws PPMapParseException {
 		int[] array = new int[lines.length - startLine];
 		int head = 0;
 		for (int i = startLine; i < lines.length; i++) {
 			String line = lines[i];
 			if (line.charAt(0) == '!') {
 				if (head == 0) {
-					throw new PMapParseException(path, i);
+					throw new PPMapParseException(path, i);
 
 				}
 				break;
@@ -124,7 +124,7 @@ public class PMapParser {
 			}
 			String[] nums = line.split("\\s+");
 			if (nums.length != 1) {
-				throw new PMapParseException(path, i);
+				throw new PPMapParseException(path, i);
 
 			}
 			int num = Integer.valueOf(nums[0]);
@@ -135,14 +135,14 @@ public class PMapParser {
 	}
 
 	private PVec2[] extractVec2s(int startLine, String[] lines) 
-			throws PMapParseException {
+			throws PPMapParseException {
 		PVec2[] array = new PVec2[lines.length - startLine];
 		int head = 0;
 		for (int i = startLine; i < lines.length; i++) {
 			String line = lines[i];
 			if (line.charAt(0) == '!') {
 				if (head == 0) {
-					throw new PMapParseException(path, i);
+					throw new PPMapParseException(path, i);
 
 				}
 				break;
@@ -150,7 +150,7 @@ public class PMapParser {
 			}
 			String[] nums = line.split("\\s+");
 			if (nums.length != 2) {
-				throw new PMapParseException(path, i);
+				throw new PPMapParseException(path, i);
 
 			}
 			double x = Double.valueOf(nums[0]);
@@ -162,14 +162,14 @@ public class PMapParser {
 	}
 
 	private PColour[] extractColours(int startLine, String[] lines) 
-			throws PMapParseException {
+			throws PPMapParseException {
 		PColour[] array = new PColour[lines.length - startLine];
 		int head = 0;
 		for (int i = startLine; i < lines.length; i++) {
 			String line = lines[i];
 			if (line.charAt(0) == '!') {
 				if (head == 0) {
-					throw new PMapParseException(path, i);
+					throw new PPMapParseException(path, i);
 
 				}
 				return new PColour[0];	
@@ -177,7 +177,7 @@ public class PMapParser {
 			}
 			String[] nums = line.split("\\s+");
 			if (nums.length != 3) {
-				throw new PMapParseException(path, i);
+				throw new PPMapParseException(path, i);
 
 			}
 			double r = Double.valueOf(nums[0]);

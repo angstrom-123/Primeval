@@ -82,7 +82,7 @@
           <configuration>  
             <archive>
               <manifest>
-                <mainClass>com.ang.Primeval.Core.Main</mainClass>
+                <mainClass>com.ang.primeval.core.Main</mainClass>
               </manifest>
             </archive>
           </configuration>

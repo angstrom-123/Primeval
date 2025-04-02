@@ -1,4 +1,4 @@
-package com.ang.Primeval.Files.TTF;
+package com.ang.primeval.files.ttf;
 
 public class PFontDirectory {
 	public POffsetSubtable offsetSubtable;

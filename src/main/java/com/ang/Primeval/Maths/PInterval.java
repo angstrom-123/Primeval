@@ -1,6 +1,6 @@
-package com.ang.Primeval.Maths;
+package com.ang.primeval.maths;
 
-import com.ang.Primeval.PGlobal;
+import com.ang.primeval.PGlobal;
 
 public class PInterval {
 	double min;

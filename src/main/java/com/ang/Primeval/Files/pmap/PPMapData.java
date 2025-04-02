@@ -1,14 +1,14 @@
-package com.ang.Primeval.Files.PMAP;
+package com.ang.primeval.files.pmap;
 
-import com.ang.Primeval.Hittables.PSectorWorld;
-import com.ang.Primeval.Maths.PVec2;
+import com.ang.primeval.hittables.PSectorWorld;
+import com.ang.primeval.maths.PVec2;
 
-public class PMapData {
+public class PPMapData {
 	private PSectorWorld world;
 	private PVec2 position;
 	private PVec2 facing;
 
-	public PMapData() {}
+	public PPMapData() {}
 
 	public void setWorld(PSectorWorld world) {
 		this.world = world;

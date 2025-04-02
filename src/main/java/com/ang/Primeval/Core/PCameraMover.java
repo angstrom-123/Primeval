@@ -1,6 +1,6 @@
-package com.ang.Primeval.Core;
+package com.ang.primeval.core;
 
-import com.ang.Primeval.Maths.PVec2;
+import com.ang.primeval.maths.PVec2;
 
 import java.awt.event.KeyEvent;
 

@@ -1,4 +1,4 @@
-package com.ang.Primeval.Inputs;
+package com.ang.primeval.inputs;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;

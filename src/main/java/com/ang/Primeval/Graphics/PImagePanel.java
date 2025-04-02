@@ -1,4 +1,4 @@
-package com.ang.Primeval.Graphics;
+package com.ang.primeval.graphics;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;

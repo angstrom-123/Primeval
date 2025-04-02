@@ -1,12 +1,12 @@
-package com.ang.Primeval.Core;
+package com.ang.primeval.core;
 
-import com.ang.Primeval.Graphics.*;
-import com.ang.Primeval.Maths.*;
-import com.ang.Primeval.Hittables.*;
-import com.ang.Primeval.Inputs.PMovementInputListener;
+import com.ang.primeval.graphics.*;
+import com.ang.primeval.maths.*;
+import com.ang.primeval.hittables.*;
+import com.ang.primeval.inputs.PMovementInputListener;
 
 public class PCamera {
-	private PColour 		backgroundCol 	= new PColour(0.3, 0.4, 0.6);
+	private PColour 	backgroundCol 	= new PColour(0.3, 0.4, 0.6);
 	private int 		imageWidth 		= 100;
 	private double 		aspectRatio 	= 16.0 / 9.0;
 	private double 		fov 			= Math.PI / 3.0;

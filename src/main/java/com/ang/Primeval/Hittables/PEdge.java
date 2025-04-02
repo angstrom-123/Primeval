@@ -1,7 +1,7 @@
-package com.ang.Primeval.Hittables;
+package com.ang.primeval.hittables;
 
-import com.ang.Primeval.Maths.*;
-import com.ang.Primeval.Graphics.PColour;
+import com.ang.primeval.maths.*;
+import com.ang.primeval.graphics.PColour;
 
 public class PEdge {
 	private PVec2 p0;

@@ -1,7 +1,7 @@
-package com.ang.Primeval.Files;
+package com.ang.primeval.files;
 
-import com.ang.Primeval.Exceptions.PFileReadException;
-import com.ang.Primeval.Utils.PArrays;
+import com.ang.primeval.exceptions.PFileReadException;
+import com.ang.primeval.utils.PArrays;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

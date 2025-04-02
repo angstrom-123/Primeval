@@ -1,36 +1,28 @@
-package com.ang.Primeval.Editor;
+package com.ang.primeval.editor;
 
-import com.ang.Primeval.Hittables.*;
-import com.ang.Primeval.Maths.*;
-import com.ang.Primeval.Exceptions.*;
-import com.ang.Primeval.Graphics.*;
-import com.ang.Primeval.Inputs.*;
-import com.ang.Primeval.Files.PFileReader;
-import com.ang.Primeval.Files.PMAP.*;
-import com.ang.Primeval.Files.TTF.*;
+import com.ang.primeval.hittables.*;
+import com.ang.primeval.maths.*;
+import com.ang.primeval.exceptions.*;
+import com.ang.primeval.graphics.*;
+import com.ang.primeval.inputs.*;
+import com.ang.primeval.files.PFileReader;
+import com.ang.primeval.files.pmap.*;
+import com.ang.primeval.files.ttf.*;
 
-public class PMapEditor implements PMouseInputInterface {
-	private final double ASPECT_RATIO = 16.0 / 9.0;
-	private final int CORNER_SIZE = 8;
-	private double scale = 8.0;
-	private PVec2 viewPosition = new PVec2(0.0, 0.0);
-	private PVec2 viewPositionAtDragStart = new PVec2(0.0, 0.0);
-	private PVec2 dragStart = new PVec2(0.0, 0.0);
-	private int width = 600;
-	private int height = (int) Math.round((double) width / ASPECT_RATIO);
+public class PEditor implements PMouseInputInterface {
 	private PMouseInputListener mil = new PMouseInputListener(this);
-	private PRenderer renderer = new PRenderer(width, height, mil);
-	private PColour backgroundColour = new PColour(0.9, 0.9, 0.9);
-	private PColour lineColour = new PColour(0.0, 0.0, 0.0);
-	private PColour cornerColour = new PColour(0.5, 0.6, 1.0);
-	private PColour selectedCornerColour = new PColour(0.0, 0.0, 0.5);
-	private PMapData mapData;
-	private int selectedSectorIndex;
-	private int selectedCornerIndex;
+	private PRenderer renderer = new PRenderer(PEditorParams.width, 
+			PEditorParams.height, mil);
+	private int selectedSectorIndex = -1;
+	private int selectedCornerIndex = -1;
+	private PVec2 viewPos = new PVec2(0.0, 0.0);
+	private PVec2 viewPosAtDragStart = new PVec2(0.0, 0.0);
+	private PVec2 dragStart = new PVec2(0.0, 0.0);
+	private PPMapData mapData;
 	private String mapDirPath;
 	private String fontDirPath;
 
-	public PMapEditor(String mapDirPath, String fontDirPath) {
+	public PEditor(String mapDirPath, String fontDirPath) {
 		this.mapDirPath = mapDirPath;
 		this.fontDirPath = fontDirPath;
 	}
@@ -67,7 +59,7 @@ public class PMapEditor implements PMouseInputInterface {
 		}
 	}
 
-	private PMapData loadMap(String fileName) {
+	private PPMapData loadMap(String fileName) {
 		String[] lines;
 		PFileReader reader = new PFileReader(mapDirPath);
 		try {
@@ -77,11 +69,11 @@ public class PMapEditor implements PMouseInputInterface {
 			return null;
 
 		}
-		PMapData mapData;
-		PMapParser parser = new PMapParser(mapDirPath + fileName);
+		PPMapData mapData;
+		PPMapParser parser = new PPMapParser(mapDirPath + fileName);
 		try {
 			mapData = parser.parseMapData(lines);
-		} catch (PMapParseException e) {
+		} catch (PPMapParseException e) {
 			System.err.println(e.getMessage());
 			return null;
 
@@ -91,7 +83,8 @@ public class PMapEditor implements PMouseInputInterface {
 	}
 
 	private void drawMapData() {
-		renderer.writeTile(backgroundColour, width, height, 0, 0);	
+		renderer.writeTile(PEditorParams.backgroundColour, PEditorParams.width, 
+				PEditorParams.height, 0, 0);	
 		PSectorWorld world = mapData.world();
 		for (PSector sec : world.sectors()) {
 			PVec2[] corners = sec.corners();
@@ -103,12 +96,13 @@ public class PMapEditor implements PMouseInputInterface {
 					nextIndex = 0;
 				}
 				int[] coords = viewportToScreenspace(corners[i], corners[nextIndex]);
-				renderer.writeLine(lineColour, coords[0], coords[1], 
+				renderer.writeLine(PEditorParams.lineColour, coords[0], coords[1], 
 						coords[2], coords[3]);
 			}
 			for (int i = 0; i < corners.length; i++) {
 				int[] coords = viewportToScreenspace(corners[i]);
-				renderer.writeTileAround(cornerColour, CORNER_SIZE, CORNER_SIZE, 
+				renderer.writeTileAround(PEditorParams.cornerColour, 
+						PEditorParams.CORNER_SIZE, PEditorParams.CORNER_SIZE, 
 						coords[0], coords[1]);
 			}
 		}
@@ -118,8 +112,8 @@ public class PMapEditor implements PMouseInputInterface {
 	@Override
 	public void mouseScrolled(int units) {
 		final double step = 0.05;
-		scale *= (1 + (units * step));
-		scale = Math.max(scale, 0.1);
+		PEditorParams.scale *= (1 + (units * step));
+		PEditorParams.scale = Math.max(PEditorParams.scale, 0.1);
 		drawMapData();
 	}
 
@@ -130,15 +124,16 @@ public class PMapEditor implements PMouseInputInterface {
 
 	@Override
 	public void mouseDragged(int x, int y) {
-		if ((selectedSectorIndex != -1) && (selectedCornerIndex != -1)) {
+		if ((selectedSectorIndex != -1) 
+				&& (selectedCornerIndex != -1)) {
 			drawMapData();
-			renderer.writeTileAround(selectedCornerColour, CORNER_SIZE, CORNER_SIZE, x, y);
+			renderer.writeTileAround(PEditorParams.selectCornerColour, 
+					PEditorParams.CORNER_SIZE, PEditorParams.CORNER_SIZE, x, y);
 		} else {
 			drawMapData();
 			int dx = (int) dragStart.x() - x;
 			int dy = (int) dragStart.y() - y;
-			viewPosition = new PVec2(viewPositionAtDragStart.x() - dx, 
-					viewPositionAtDragStart.y() - dy);
+			viewPos= new PVec2(viewPosAtDragStart.x() - dx, viewPosAtDragStart.y() - dy);
 		}
 	}
 
@@ -146,7 +141,7 @@ public class PMapEditor implements PMouseInputInterface {
 	public void mousePressed(int x, int y) {
 		findSelectedCorner(x, y);
 		dragStart = new PVec2(x, y);
-		viewPositionAtDragStart = viewPosition.copy();
+		viewPosAtDragStart = viewPos.copy();
 	}
 
 	@Override
@@ -162,7 +157,7 @@ public class PMapEditor implements PMouseInputInterface {
 
 	private void findSelectedCorner(int x, int y) {
 		final PSector[] sectors = mapData.world().sectors();
-		final int leeway = (int) Math.round((CORNER_SIZE / 2) * 1.8);
+		final int leeway = (int) Math.round((PEditorParams.CORNER_SIZE / 2) * 1.8);
 		for (int i = 0; i < sectors.length; i++) {
 			PVec2[] corners = sectors[i].corners();
 			for (int j = 0; j < corners.length; j++) {
@@ -204,20 +199,11 @@ public class PMapEditor implements PMouseInputInterface {
 	}
 
 	private int viewportToScreenspace(double coord, boolean isX) {
-		int scaled = (int) Math.round(coord * scale);
+		int scaled = (int) Math.round(coord * PEditorParams.scale);
 		int transpose = isX 
-		? (width / 2) + (int) viewPosition.x() 
-		: (height / 2) + (int) viewPosition.y();
+		? (PEditorParams.width / 2) + (int) viewPos.x() 
+		: (PEditorParams.height / 2) + (int) viewPos.y();
 		return scaled + transpose;
-
-	}
-
-	private boolean inBounds(int x, int y) {
-		if ((x < 0) || (x > width) || (y < 0) || (y > height)) {
-			return false;
-
-		}
-		return true;
 
 	}
 }

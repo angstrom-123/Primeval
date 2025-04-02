@@ -1,4 +1,4 @@
-package com.ang.Primeval.Inputs;
+package com.ang.primeval.inputs;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;

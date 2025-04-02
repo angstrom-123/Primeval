@@ -1,4 +1,4 @@
-package com.ang.Primeval.Threads;
+package com.ang.primeval.threads;
 
 public interface PThreadInterface {
 	void update();

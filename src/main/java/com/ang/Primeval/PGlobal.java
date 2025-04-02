@@ -1,6 +1,6 @@
-package com.ang.Primeval;
+package com.ang.primeval;
 
-import com.ang.Primeval.Threads.PUpdateWorker;
+import com.ang.primeval.threads.PUpdateWorker;
 
 public class PGlobal {
 	public static PUpdateWorker uw;

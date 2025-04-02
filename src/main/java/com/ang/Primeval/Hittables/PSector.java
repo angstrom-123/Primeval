@@ -1,9 +1,9 @@
-package com.ang.Primeval.Hittables;
+package com.ang.primeval.hittables;
 
-import com.ang.Primeval.PGlobal;
-import com.ang.Primeval.Utils.PArrays;
-import com.ang.Primeval.Graphics.PColour;
-import com.ang.Primeval.Maths.*;
+import com.ang.primeval.PGlobal;
+import com.ang.primeval.utils.PArrays;
+import com.ang.primeval.graphics.PColour;
+import com.ang.primeval.maths.*;
 
 public class PSector {
 	private PEdge[] walls;

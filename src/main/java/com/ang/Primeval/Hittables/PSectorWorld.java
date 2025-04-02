@@ -1,8 +1,8 @@
-package com.ang.Primeval.Hittables;
+package com.ang.primeval.hittables;
 
-import com.ang.Primeval.Maths.*;
-import com.ang.Primeval.PGlobal;
-import com.ang.Primeval.Utils.PArrays;
+import com.ang.primeval.maths.*;
+import com.ang.primeval.PGlobal;
+import com.ang.primeval.utils.PArrays;
 
 public class PSectorWorld {
 	private PSector[] sectors;

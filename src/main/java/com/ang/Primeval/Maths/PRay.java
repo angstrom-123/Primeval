@@ -1,4 +1,4 @@
-package com.ang.Primeval.Maths;
+package com.ang.primeval.maths;
 
 public class PRay {
 	private PVec2 origin;

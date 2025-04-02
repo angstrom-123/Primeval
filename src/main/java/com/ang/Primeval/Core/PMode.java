@@ -1,4 +1,4 @@
-package com.ang.Primeval.Core;
+package com.ang.primeval.core;
 
 public enum PMode {
 	TEST,

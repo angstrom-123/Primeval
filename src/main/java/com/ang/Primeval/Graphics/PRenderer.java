@@ -1,7 +1,7 @@
-package com.ang.Primeval.Graphics;
+package com.ang.primeval.graphics;
 
-import com.ang.Primeval.Inputs.*;
-import com.ang.Primeval.PGlobal;
+import com.ang.primeval.inputs.*;
+import com.ang.primeval.PGlobal;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

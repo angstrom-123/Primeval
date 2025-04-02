@@ -1,4 +1,4 @@
-package com.ang.Primeval.Core;
+package com.ang.primeval.core;
 
 public class Main {
     public static void main(String[] args) {

@@ -1,9 +1,9 @@
-package com.ang.Primeval.Utils;
+package com.ang.primeval.utils;
 
-import com.ang.Primeval.Hittables.PSector;
-import com.ang.Primeval.Hittables.PHitRecord;
-import com.ang.Primeval.Maths.PVec2;
-import com.ang.Primeval.Graphics.PColour;
+import com.ang.primeval.hittables.PSector;
+import com.ang.primeval.hittables.PHitRecord;
+import com.ang.primeval.maths.PVec2;
+import com.ang.primeval.graphics.PColour;
 
 public class PArrays {
 	public static PSector[] reduceArray(PSector[] array, int head) {

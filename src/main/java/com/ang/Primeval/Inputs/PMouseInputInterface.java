@@ -1,4 +1,4 @@
-package com.ang.Primeval.Inputs;
+package com.ang.primeval.inputs;
 
 public interface PMouseInputInterface {
 	void mouseScrolled(int units);

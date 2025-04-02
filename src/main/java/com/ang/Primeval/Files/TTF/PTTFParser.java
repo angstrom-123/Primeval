@@ -1,6 +1,6 @@
-package com.ang.Primeval.Files.TTF;
+package com.ang.primeval.files.ttf;
 
-import com.ang.Primeval.PGlobal;
+import com.ang.primeval.PGlobal;
 
 public class PTTFParser {
 	private String path;

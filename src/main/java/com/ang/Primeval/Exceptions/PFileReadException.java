@@ -1,4 +1,4 @@
-package com.ang.Primeval.Exceptions;
+package com.ang.primeval.exceptions;
 
 public class PFileReadException extends Exception {
 	public PFileReadException(String message) {

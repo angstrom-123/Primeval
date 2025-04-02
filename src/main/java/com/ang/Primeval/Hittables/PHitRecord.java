@@ -1,6 +1,6 @@
-package com.ang.Primeval.Hittables;
+package com.ang.primeval.hittables;
 
-import com.ang.Primeval.Graphics.PColour;
+import com.ang.primeval.graphics.PColour;
 
 public class PHitRecord {
 	private double t;

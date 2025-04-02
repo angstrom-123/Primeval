@@ -1,13 +1,13 @@
-package com.ang.Primeval.Core;
+package com.ang.primeval.core;
 
-import com.ang.Primeval.Editor.PMapEditor;
-import com.ang.Primeval.Exceptions.*;
-import com.ang.Primeval.Hittables.*;
-import com.ang.Primeval.Threads.*;
-import com.ang.Primeval.Inputs.*;
-import com.ang.Primeval.PGlobal;
-import com.ang.Primeval.Files.PFileReader;
-import com.ang.Primeval.Files.PMAP.*;
+import com.ang.primeval.editor.PEditor;
+import com.ang.primeval.exceptions.*;
+import com.ang.primeval.hittables.*;
+import com.ang.primeval.threads.*;
+import com.ang.primeval.inputs.*;
+import com.ang.primeval.PGlobal;
+import com.ang.primeval.files.PFileReader;
+import com.ang.primeval.files.pmap.*;
 
 public class PGame implements PThreadInterface, PMovementInputInterface {
 	private final String 	MAP_DIR_PATH	= "/mapData/";
@@ -73,7 +73,7 @@ public class PGame implements PThreadInterface, PMovementInputInterface {
 	}
 
 	private void testEditor() {
-		PMapEditor editor = new PMapEditor(MAP_DIR_PATH, FONT_DIR_PATH);
+		PEditor editor = new PEditor(MAP_DIR_PATH, FONT_DIR_PATH);
 		editor.test();
 	}
 
@@ -100,11 +100,11 @@ public class PGame implements PThreadInterface, PMovementInputInterface {
 			return false; 
 
 		}
-		PMapParser mapParser = new PMapParser(MAP_DIR_PATH + fileName);
-		PMapData mapData;
+		PPMapParser mapParser = new PPMapParser(MAP_DIR_PATH + fileName);
+		PPMapData mapData;
 		try {
 			mapData = mapParser.parseMapData(fileData);
-		} catch (PMapParseException e) {
+		} catch (PPMapParseException e) {
 			e.printStackTrace();
 			return false;
 

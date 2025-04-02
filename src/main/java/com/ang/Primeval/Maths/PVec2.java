@@ -1,4 +1,4 @@
-package com.ang.Primeval.Maths;
+package com.ang.primeval.maths;
 
 public class PVec2 {
 	private double x = 0.0;

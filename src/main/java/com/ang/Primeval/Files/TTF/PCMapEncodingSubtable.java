@@ -1,4 +1,4 @@
-package com.ang.Primeval.Files.TTF;
+package com.ang.primeval.files.ttf;
 
 public class PCMapEncodingSubtable {
 	public int platformID;
