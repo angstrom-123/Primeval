@@ -1,8 +1,10 @@
 package com.ang.primeval.editor;
 
+import java.io.File;
+
 public interface PEditorInterface {
-	void save(String fileName);
-	void open(String fileName);
+	void save(File file);
+	void open(File file);
 	void newFile();
 	void exit();
 	void undo();

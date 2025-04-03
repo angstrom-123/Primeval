@@ -1,6 +1,5 @@
 package com.ang.primeval.files.pmap;
 
-import com.ang.primeval.PGlobal;
 import com.ang.primeval.exceptions.*;
 import com.ang.primeval.graphics.PColour;
 import com.ang.primeval.utils.PArrays;

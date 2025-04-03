@@ -2,6 +2,11 @@ package com.ang.primeval.graphics;
 
 import com.ang.primeval.inputs.*;
 import com.ang.primeval.PGlobal;
+import com.ang.primeval.maths.PVec2;
+import com.ang.primeval.files.pmap.PPMapData;
+import com.ang.primeval.hittables.PSectorWorld;
+import com.ang.primeval.hittables.PSector;
+import com.ang.primeval.editor.PEditorParams;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -37,6 +42,11 @@ public class PRenderer {
 	public int windowHeight() {
 		return frame.getHeight();
 
+	}
+
+	public void close() {
+		PGlobal.uw.doStop();	
+		frame.dispose();
 	}
 
 	private void init(Object listener) {
@@ -117,6 +127,35 @@ public class PRenderer {
 
 				}
 				img.setRGB(i, j, tileColour);
+			}
+		}
+	}
+
+	public void writeMapData(PPMapData mapData, PEditorParams params, PVec2 origin) {
+		PColour backgroundColour = params.backgroundColour;
+		PColour lineColour = params.lineColour;
+		PColour cornerColour = params.cornerColour;
+		int cornerSize = params.CORNER_SIZE;
+		double scale = params.scale;
+		writeTile(backgroundColour, width, height, 0, 0);	
+		for (PSector sec : mapData.world().sectors()) {
+			PVec2[] corners = sec.corners();
+			for (int i = 0; i < corners.length; i++) {
+				int next;
+				if (i < corners.length - 1) {
+					next = i + 1;
+				} else {
+					next = 0;
+				}
+				int[] coords = PGlobal.viewportToScreenspace(corners[i], corners[next],
+						width, height, scale, origin);
+				writeLine(lineColour, coords[0], coords[1], coords[2], coords[3]);
+			}
+			for (int i = 0; i < corners.length; i++) {
+				int[] coords = PGlobal.viewportToScreenspace(corners[i], 
+						width, height, scale, origin);
+				writeTileAround(cornerColour, cornerSize, cornerSize, 
+						coords[0], coords[1]);
 			}
 		}
 	}

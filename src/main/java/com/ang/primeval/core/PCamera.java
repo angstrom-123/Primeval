@@ -12,9 +12,9 @@ public class PCamera {
 	private double 		fov 			= Math.PI / 3.0;
 	private PVec2 		position 		= new PVec2(0.0, 0.0);
 	private PVec2 		facing 			= new PVec2(0.0, 1.0);
-	private int 		imageHeight;
 	private double 		viewportHeight;
 	private double 		viewportWidth;
+	private int 		imageHeight;
 	private PVec3 		w, u, v;
 	private PVec2 		pixel0Position;
 	private PVec2 		pixelDeltaU;

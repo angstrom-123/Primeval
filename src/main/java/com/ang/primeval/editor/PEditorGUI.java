@@ -2,14 +2,18 @@ package com.ang.primeval.editor;
 
 import java.awt.event.*;
 import javax.swing.*;
+import java.io.File;
 
 import com.ang.primeval.graphics.PRenderer;
 
 public class PEditorGUI implements ActionListener, ItemListener {
+	private JFileChooser chooser = new JFileChooser();
 	private JFrame frame;
+	private PEditorInterface ei;
 
-	public PEditorGUI(PRenderer renderer) {
+	public PEditorGUI(PRenderer renderer, PEditorInterface ei) {
 		this.frame = renderer.frame();	
+		this.ei = ei;
 	}
 
 	public void init() {
@@ -26,39 +30,77 @@ public class PEditorGUI implements ActionListener, ItemListener {
 	public void actionPerformed(ActionEvent e) {
 		switch (e.getActionCommand()) {
 		case "New":
-			System.out.println("Clicked new");
+			int newSelection = JOptionPane.showConfirmDialog(frame, "Save before exiting?",
+					"New", JOptionPane.YES_NO_OPTION);
+			switch (newSelection) {
+			case JOptionPane.YES_OPTION:
+				ei.save(null);
+				ei.newFile();
+				break;
+
+			case JOptionPane.NO_OPTION:
+				ei.newFile();
+				break;
+
+			case JOptionPane.CANCEL_OPTION:
+				break;
+
+			}
 			break;
 			
 		case "Open":
-			System.out.println("Clicked open");
+			int openSelection = chooser.showOpenDialog(frame);
+			if (openSelection == JFileChooser.APPROVE_OPTION) {
+				File file = chooser.getSelectedFile();
+				ei.open(file);
+			} 
 			break;
 
 		case "Save":
-			System.out.println("Clicked save");
+			ei.save(null);
 			break;
 
 		case "Save As":
-			System.out.println("Clicked save as");
+			int saveAsSelection = chooser.showSaveDialog(frame);
+			if (saveAsSelection == JFileChooser.APPROVE_OPTION) {
+				File file = chooser.getSelectedFile();
+				ei.save(file);
+			} 
 			break;
 
 		case "Exit":
-			System.out.println("Clicked exit");
+			int exitSelection = JOptionPane.showConfirmDialog(frame, "Save before exiting?",
+					"Exit", JOptionPane.YES_NO_OPTION);
+			switch (exitSelection) {
+			case JOptionPane.YES_OPTION:
+				ei.save(null);
+				ei.exit();
+				break;
+
+			case JOptionPane.NO_OPTION:
+				ei.exit();
+				break;
+
+			case JOptionPane.CANCEL_OPTION:
+				break;
+
+			}
 			break;
 
 		case "Undo":
-			System.out.println("Clicked undo");
+			ei.undo();
 			break;
 
 		case "Redo":
-			System.out.println("Clicked redo");
+			ei.redo();
 			break;
 
 		case "Sector":
-			System.out.println("Clicked sector");
+			ei.newSector();
 			break;
 
 		case "Corner":
-			System.out.println("Clicked corner");
+			ei.newCorner();
 			break;
 
 		default:

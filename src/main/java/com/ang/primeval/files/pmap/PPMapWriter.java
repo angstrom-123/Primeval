@@ -1,7 +1,5 @@
 package com.ang.primeval.files.pmap;
 
-import java.io.FileWriter;
-
 import com.ang.primeval.hittables.PSector;
 import com.ang.primeval.maths.PVec2;
 import com.ang.primeval.exceptions.PFileWriteException;
@@ -39,9 +37,11 @@ public class PPMapWriter {
 		}
 		lines[head++] = "!SECTOR";
 		lines[head++] = "0";
-		int sectorEnd = 0;
-		for (PSector sec : mapData.world().sectors()) {
-			lines[head++] = String.valueOf(sectorEnd + sec.corners().length);
+		int sectorStart = 0;
+		for (int i = 0; i < mapData.world().sectors().length - 1; i++) {
+			PSector sec = mapData.world().sectors()[i];
+			sectorStart += sec.corners().length;
+			lines[head++] = String.valueOf(sectorStart);
 		}
 		lines[head++] = "!HEIGHT";
 		for (PSector sec : mapData.world().sectors()) {
