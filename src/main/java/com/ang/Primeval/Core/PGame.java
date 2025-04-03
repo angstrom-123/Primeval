@@ -11,7 +11,6 @@ import com.ang.primeval.files.pmap.*;
 
 public class PGame implements PThreadInterface, PMovementInputInterface {
 	private final String 	MAP_DIR_PATH	= "/mapData/";
-	private final String 	FONT_DIR_PATH	= "/fontData/";
 	private final int 		IMAGE_WIDTH 	= 600;
 	private final int 		FRAME_MS 		= 1000 / 60;
 	private boolean[] 		keyInputs 		= new boolean[256];
@@ -73,7 +72,7 @@ public class PGame implements PThreadInterface, PMovementInputInterface {
 	}
 
 	private void testEditor() {
-		PEditor editor = new PEditor(MAP_DIR_PATH, FONT_DIR_PATH);
+		PEditor editor = new PEditor(MAP_DIR_PATH);
 		editor.test();
 	}
 

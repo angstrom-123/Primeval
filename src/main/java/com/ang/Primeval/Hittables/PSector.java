@@ -8,6 +8,7 @@ import com.ang.primeval.maths.*;
 public class PSector {
 	private PEdge[] walls;
 	private PVec2[] corners;
+	private int[] portalIndices;
 	private double floorHeight;
 	private double ceilingHeight;
 	// TODO: implement light level
@@ -15,17 +16,23 @@ public class PSector {
 
 	public PSector(PVec2[] corners, int[] portalIndices) {
 		this.corners = corners;
+		this.portalIndices = portalIndices;
 		walls = new PEdge[corners.length];
 		int head = 0;
 		for (int i = 0; i < corners.length; i++) {
 			PEdge wall;
 			int nextI = (i < corners.length - 1) ? i + 1 : 0;
 			wall = new PEdge(corners[i], corners[nextI], new PColour(1.0, 1.0, 1.0));
-			if (isPortal(i, nextI, portalIndices)) {
+			if (isPortal(i, nextI)) {
 				wall.setAsPortal();
 			}
 			walls[head++] = wall;
 		}
+	}
+
+	public PSector copy() {
+		return new PSector(PArrays.copy(corners), portalIndices);
+
 	}
 
 	public void setHeight(double floorHeight, double ceilingHeight) {
@@ -62,7 +69,12 @@ public class PSector {
 
 	}
 
-	private boolean isPortal(int indexOne, int indexTwo, int[] portalIndices) {
+	public int[] portalIndices() {
+		return portalIndices;
+
+	}
+
+	private boolean isPortal(int indexOne, int indexTwo) {
 		boolean foundOne = false;
 		boolean foundTwo = false;
 		for (int i : portalIndices) {

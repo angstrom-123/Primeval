@@ -13,6 +13,15 @@ public class PSectorWorld {
 		this.maxSectors = maxSectors;
 		sectors = new PSector[maxSectors];
 	}
+
+	public PSectorWorld copy() {
+		PSectorWorld temp = new PSectorWorld(maxSectors);
+		for (int i = 0; i < head; i++) {
+			temp.addSector(sectors[i]);
+		}
+		return temp;
+
+	}
 	
 	public void addSector(PSector sec) {
 		if (head < maxSectors) {

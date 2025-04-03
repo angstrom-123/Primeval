@@ -24,6 +24,11 @@ public class PRenderer {
 		init(listener);
 	}
 
+	public JFrame frame() {
+		return frame;
+
+	}
+
 	public int windowWidth() {
 		return frame.getWidth();
 

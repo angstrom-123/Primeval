@@ -10,6 +10,15 @@ public class PPMapData {
 
 	public PPMapData() {}
 
+	public PPMapData copy() {
+		PPMapData temp = new PPMapData();
+		temp.setWorld(world.copy());
+		temp.setPosition(position.copy());
+		temp.setFacing(facing.copy());
+		return temp;
+
+	}
+
 	public void setWorld(PSectorWorld world) {
 		this.world = world;
 	}

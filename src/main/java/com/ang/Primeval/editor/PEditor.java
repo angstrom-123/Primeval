@@ -7,106 +7,30 @@ import com.ang.primeval.graphics.*;
 import com.ang.primeval.inputs.*;
 import com.ang.primeval.files.PFileReader;
 import com.ang.primeval.files.pmap.*;
-import com.ang.primeval.files.ttf.*;
 
-public class PEditor implements PMouseInputInterface {
+public class PEditor implements PMouseInputInterface, PEditorInterface {
 	private PMouseInputListener mil = new PMouseInputListener(this);
 	private PRenderer renderer = new PRenderer(PEditorParams.width, 
 			PEditorParams.height, mil);
+	private PEditorGUI gui = new PEditorGUI(renderer);
 	private int selectedSectorIndex = -1;
 	private int selectedCornerIndex = -1;
 	private PVec2 viewPos = new PVec2(0.0, 0.0);
 	private PVec2 viewPosAtDragStart = new PVec2(0.0, 0.0);
 	private PVec2 dragStart = new PVec2(0.0, 0.0);
-	private PPMapData mapData;
+	private PPMapData editableMapData;
+	private PPMapData savedMapData;
 	private String mapDirPath;
-	private String fontDirPath;
 
-	public PEditor(String mapDirPath, String fontDirPath) {
+	public PEditor(String mapDirPath) {
 		this.mapDirPath = mapDirPath;
-		this.fontDirPath = fontDirPath;
+		gui.init();
 	}
 
 	public void test() {
-		mapData = loadMap("testMap.pmap");
+		savedMapData = loadMapData("testMap.pmap");
+		editableMapData = savedMapData.copy();
 		drawMapData();
-		loadFont("Inconsolata/static/Inconsolata-Regular.ttf");
-	}
-
-	public void newMap() { // TODO: Implement
-
-	}
-
-	private void loadFont(String fileName) {
-		byte[] bytes;
-		PFileReader reader = new PFileReader(fontDirPath);
-		try {
-			bytes = reader.readFileAsBytes(fileName);
-		} catch (PFileReadException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			return;
-		
-		}
-		PTTFParser parser = new PTTFParser(fontDirPath + fileName);
-		try {
-			parser.readTtl(bytes);
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			return;
-
-		}
-	}
-
-	private PPMapData loadMap(String fileName) {
-		String[] lines;
-		PFileReader reader = new PFileReader(mapDirPath);
-		try {
-			lines = reader.readFile(fileName);
-		} catch (PFileReadException e) {
-			System.err.println(e.getMessage());
-			return null;
-
-		}
-		PPMapData mapData;
-		PPMapParser parser = new PPMapParser(mapDirPath + fileName);
-		try {
-			mapData = parser.parseMapData(lines);
-		} catch (PPMapParseException e) {
-			System.err.println(e.getMessage());
-			return null;
-
-		}
-		return mapData;
-
-	}
-
-	private void drawMapData() {
-		renderer.writeTile(PEditorParams.backgroundColour, PEditorParams.width, 
-				PEditorParams.height, 0, 0);	
-		PSectorWorld world = mapData.world();
-		for (PSector sec : world.sectors()) {
-			PVec2[] corners = sec.corners();
-			for (int i = 0; i < corners.length; i++) {
-				int nextIndex;
-				if (i < corners.length - 1) {
-					nextIndex = i + 1;
-				} else {
-					nextIndex = 0;
-				}
-				int[] coords = viewportToScreenspace(corners[i], corners[nextIndex]);
-				renderer.writeLine(PEditorParams.lineColour, coords[0], coords[1], 
-						coords[2], coords[3]);
-			}
-			for (int i = 0; i < corners.length; i++) {
-				int[] coords = viewportToScreenspace(corners[i]);
-				renderer.writeTileAround(PEditorParams.cornerColour, 
-						PEditorParams.CORNER_SIZE, PEditorParams.CORNER_SIZE, 
-						coords[0], coords[1]);
-			}
-		}
-		renderer.repaint();
 	}
 
 	@Override
@@ -155,8 +79,109 @@ public class PEditor implements PMouseInputInterface {
 
 	}
 
+	@Override
+	public void newFile() {
+
+	}
+
+	@Override 
+	public void open(String fileName) {
+
+	}
+
+	@Override 
+	public void save(String fileName) {
+		
+	}
+
+	@Override
+	public void exit() {
+
+	}
+
+	@Override 
+	public void undo() {
+
+	}
+
+	@Override 
+	public void redo() {
+
+	}
+
+	@Override 
+	public void newSector() {
+
+	}
+
+	@Override 
+	public void newCorner() {
+
+	}
+
+	private void saveMap(String fileName) {
+		PPMapWriter writer = new PPMapWriter(mapDirPath);
+		try {
+			writer.writePMap(fileName, editableMapData);
+			savedMapData = editableMapData.copy();
+		} catch (PPMapWriteException e) {
+			System.err.println(e.getMessage());	
+			e.printStackTrace();
+		}
+	}
+
+	private PPMapData loadMapData(String fileName) {
+		String[] lines;
+		PFileReader reader = new PFileReader(mapDirPath);
+		try {
+			lines = reader.readFile(fileName);
+		} catch (PFileReadException e) {
+			System.err.println(e.getMessage());
+			return null;
+
+		}
+		PPMapData mapData;
+		PPMapParser parser = new PPMapParser(mapDirPath + fileName);
+		try {
+			mapData = parser.parseMapData(lines);
+		} catch (PPMapParseException e) {
+			System.err.println(e.getMessage());
+			return null;
+
+		}
+		return mapData;
+
+	}
+
+	private void drawMapData() {
+		renderer.writeTile(PEditorParams.backgroundColour, PEditorParams.width, 
+				PEditorParams.height, 0, 0);	
+		PSectorWorld world = editableMapData.world();
+		for (PSector sec : world.sectors()) {
+			PVec2[] corners = sec.corners();
+			for (int i = 0; i < corners.length; i++) {
+				int nextIndex;
+				if (i < corners.length - 1) {
+					nextIndex = i + 1;
+				} else {
+					nextIndex = 0;
+				}
+				int[] coords = viewportToScreenspace(corners[i], corners[nextIndex]);
+				renderer.writeLine(PEditorParams.lineColour, coords[0], coords[1], 
+						coords[2], coords[3]);
+			}
+			for (int i = 0; i < corners.length; i++) {
+				int[] coords = viewportToScreenspace(corners[i]);
+				renderer.writeTileAround(PEditorParams.cornerColour, 
+						PEditorParams.CORNER_SIZE, PEditorParams.CORNER_SIZE, 
+						coords[0], coords[1]);
+			}
+		}
+		renderer.repaint();
+	}
+
 	private void findSelectedCorner(int x, int y) {
-		final PSector[] sectors = mapData.world().sectors();
+		final PSector[] sectors = editableMapData.world().sectors();
 		final int leeway = (int) Math.round((PEditorParams.CORNER_SIZE / 2) * 1.8);
 		for (int i = 0; i < sectors.length; i++) {
 			PVec2[] corners = sectors[i].corners();
@@ -189,12 +214,6 @@ public class PEditor implements PMouseInputInterface {
 	private int[] viewportToScreenspace(PVec2 p) {
 		return new int[]{viewportToScreenspace(p.x(), true),
 				viewportToScreenspace(p.y(), false)};
-
-	}
-
-	private int[] viewportToScreenspace(double x, double y) {
-		return new int[]{viewportToScreenspace(x, true),
-				viewportToScreenspace(y, false)};
 
 	}
 

@@ -6,6 +6,15 @@ import com.ang.primeval.maths.PVec2;
 import com.ang.primeval.graphics.PColour;
 
 public class PArrays {
+	public static PVec2[] copy(PVec2[] array) {
+		PVec2[] out = new PVec2[array.length];
+		for (int i = 0; i < out.length; i++) {
+			out[i] = array[i].copy();
+		}
+		return out;
+
+	}
+
 	public static PSector[] reduceArray(PSector[] array, int head) {
 		PSector[] out = new PSector[head];
 		for (int i = 0; i < out.length; i++) {
